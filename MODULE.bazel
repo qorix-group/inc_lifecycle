@@ -1,8 +1,13 @@
+module(
+    name = "score_lifecycle_health",
+    version = "0.0.1",
+)
+
 bazel_dep(name = "rules_python", version = "1.4.1")
 
 PYTHON_VERSION = "3.12"
 
-python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
 python.toolchain(
     is_default = True,
     python_version = PYTHON_VERSION,
@@ -16,15 +21,10 @@ bazel_dep(name = "googletest", version = "1.17.0")
 bazel_dep(name = "rules_cc", version = "0.2.9")
 
 # Score platforms
-bazel_dep(name = "score_bazel_platforms", version = "v0.0.2")
-git_override(
-    module_name = "score_bazel_platforms",
-    remote = "https://github.com/eclipse-score/bazel_platforms.git",
-    tag="v0.0.2"
-)
+bazel_dep(name = "score_bazel_platforms", version = "0.0.2")
 
 # Score Rust/C++ toolchains
-bazel_dep(name = "score_toolchains_rust", version = "0.1")
+bazel_dep(name = "score_toolchains_rust", version = "0.1", dev_dependency = True)
 git_override(
     module_name = "score_toolchains_rust",
     remote = "https://github.com/eclipse-score/toolchains_rust.git",
@@ -32,7 +32,7 @@ git_override(
 )
 
 # Score Qnx rust toolchain
-bazel_dep(name = "rust_qnx8_toolchain", version = "1.0.0")
+bazel_dep(name = "rust_qnx8_toolchain", version = "1.0.0", dev_dependency = True)
 archive_override(
     module_name = "rust_qnx8_toolchain",
     urls = [
@@ -43,13 +43,9 @@ archive_override(
 )
 
 # Score Qnx toolchain
-bazel_dep(name = "score_toolchains_qnx", version = "0.1")
-git_override(
-    module_name = "score_toolchains_qnx",
-    tag = "v0.0.2",
-    remote = "https://github.com/eclipse-score/toolchains_qnx.git",
-)
-toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx")
+bazel_dep(name = "score_toolchains_qnx", version = "0.0.3", dev_dependency = True)
+
+toolchains_qnx = use_extension("@score_toolchains_qnx//:extensions.bzl", "toolchains_qnx", dev_dependency = True)
 toolchains_qnx.sdp(
     sha256 = "f2e0cb21c6baddbcb65f6a70610ce498e7685de8ea2e0f1648f01b327f6bac63",
     strip_prefix = "installation",
@@ -59,7 +55,7 @@ use_repo(toolchains_qnx, "toolchains_qnx_sdp")
 use_repo(toolchains_qnx, "toolchains_qnx_qcc")
 
 # Score Rust/C++ toolchains: Sysroots to download
-rust_ext = use_extension("@score_toolchains_rust//extensions:rust_toolchain_ext.bzl", "rust_toolchain_ext")
+rust_ext = use_extension("@score_toolchains_rust//extensions:rust_toolchain_ext.bzl", "rust_toolchain_ext", dev_dependency = True)
 rust_ext.sysroot(
     name = "sysroot_linux_x64",
     url = "https://commondatastorage.googleapis.com/chrome-linux-sysroot/toolchain/4f611ec025be98214164d4bf9fbe8843f58533f7/debian_bullseye_amd64_sysroot.tar.xz",
@@ -82,7 +78,7 @@ use_repo(rust_ext, "sysroot_linux_aarch64")
 bazel_dep(name = "rules_rust", version = "0.61.0")
 bazel_dep(name = "toolchains_llvm", version = "1.2.0")
 
-llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm", dev_dependency = True)
 llvm.toolchain(
     name = "llvm_toolchain",
     llvm_versions = { "": "19.1.0" },
@@ -100,15 +96,15 @@ rust.toolchain(
     versions = ["1.85.0"],
 )
 use_repo(rust, "rust_toolchains")
-register_toolchains("@rust_toolchains//:all")
-register_toolchains("@llvm_toolchain//:all")
-register_toolchains("@toolchains_qnx_qcc//:qcc_aarch64")
-register_toolchains("@score_toolchains_rust//toolchains/aarch64-unknown-qnx8_0:toolchain_aarch64_qnx8_0")
+register_toolchains("@rust_toolchains//:all", dev_dependency = True)
+register_toolchains("@llvm_toolchain//:all", dev_dependency = True)
+register_toolchains("@toolchains_qnx_qcc//:qcc_aarch64", dev_dependency = True)
+register_toolchains("@score_toolchains_rust//toolchains/aarch64-unknown-qnx8_0:toolchain_aarch64_qnx8_0", dev_dependency = True)
 
 # Tooling
-bazel_dep(name = "score_tooling", version = "1.0.1")
-bazel_dep(name = "aspect_rules_lint", version = "1.5.3")
-bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2")
+bazel_dep(name = "score_tooling", version = "1.0.1", dev_dependency = True)
+bazel_dep(name = "aspect_rules_lint", version = "1.5.3", dev_dependency = True)
+bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2", dev_dependency = True)
 
 # Flatbuffers
 bazel_dep(name = "flatbuffers", version = "25.9.23")
@@ -117,12 +113,7 @@ git_override(
     remote = "https://github.com/google/flatbuffers.git",
     commit = "187240970746d00bbd26b0f5873ed54d2477f9f3",
 )
-bazel_dep(name = "score-baselibs", version = "0.1.0")
-git_override(
-    module_name = "score-baselibs",
-    commit = "05b920e14a0830cbf390577fb5119f27c2fa6cda",
-    remote = "https://github.com/eclipse-score/baselibs.git",
-)
+bazel_dep(name = "score_baselibs", version = "0.1.3")
 
 # Rust crate
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
