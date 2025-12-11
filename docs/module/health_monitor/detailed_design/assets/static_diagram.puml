@@ -46,7 +46,7 @@
 }
 
 +class LogicMonitorState {
-    +from_str(name: &str) -> Self
+    +new<N: AsRef<str>>(name: N) -> Self
 }
 
 +class LogicMonitorBuilder {
