@@ -21,10 +21,6 @@
 #include "score/lcm/saf/logging/PhmLogger.hpp"
 #include "score/lcm/saf/watchdog/WatchdogImpl.hpp"
 
-#ifdef BINARY_TEST_ENABLE_PHM_DAEMON_HEAP_MEASUREMENT
-#include "tracer.hpp"
-#endif
-
 namespace score {
 namespace lcm {
 namespace saf {
@@ -59,9 +55,6 @@ EInitCode HealthMonitorImpl::init() noexcept {
 }
 
 bool HealthMonitorImpl::run(std::atomic_bool& cancel_thread) noexcept {
-#ifdef BINARY_TEST_ENABLE_PHM_DAEMON_HEAP_MEASUREMENT
-    score::lcm::heap::Tracer::Enable();
-#endif
     assert(m_daemon != nullptr && "HealthMonitor: Instance is not initialized!");
     return m_daemon->startCyclicExec(cancel_thread);
 }
