@@ -9,29 +9,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
+use crate::common::Status;
 use crate::deadline_monitor::*;
-use crate::logic_monitor::*;
 use crate::health_monitor::*;
-use crate::common::{Status, Error};
-use std::{ffi::{c_char, CStr}, os::raw::c_void, ptr::null_mut, time::Duration};
+use crate::heartbeat_monitor::HeartbeatMonitor;
+use crate::logic_monitor::*;
 use alive_monitor::ffi::*;
+use std::{
+    ffi::{CStr, c_char},
+    os::raw::c_void,
+    ptr::null_mut,
+    time::Duration,
+};
 
 //
 // DeadlineMonitorBuilder
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_dmb_new() -> *mut DeadlineMonitorBuilder {
+extern "C" fn hm_dmb_new() -> *mut DeadlineMonitorBuilder {
     Box::into_raw(Box::new(DeadlineMonitorBuilder::new()))
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dmb_delete(builder_ptr: *mut *mut DeadlineMonitorBuilder) {
+extern "C" fn hm_dmb_delete(builder_ptr: *mut *mut DeadlineMonitorBuilder) {
     let _builder = unsafe { Box::from_raw(*builder_ptr) };
-    unsafe { *builder_ptr = null_mut(); }
+    unsafe {
+        *builder_ptr = null_mut();
+    }
 }
 
-type DeadlineMonitorOnStatusChanged = unsafe extern fn(data: *mut c_void, from: i32, to: i32);
+type DeadlineMonitorOnStatusChanged = unsafe extern "C" fn(data: *mut c_void, from: i32, to: i32);
 
 struct DeadlineMonitorHooks {
     on_status_changed: DeadlineMonitorOnStatusChanged,
@@ -49,19 +57,25 @@ impl crate::deadline_monitor::Hook for DeadlineMonitorHooks {
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dmb_add_hook(builder: *mut DeadlineMonitorBuilder, on_status_changed: DeadlineMonitorOnStatusChanged, on_status_changed_data: *mut c_void) {
+extern "C" fn hm_dmb_add_hook(
+    builder: *mut DeadlineMonitorBuilder,
+    on_status_changed: DeadlineMonitorOnStatusChanged,
+    on_status_changed_data: *mut c_void,
+) {
     unsafe {
         (*builder).add_hook(Box::new(DeadlineMonitorHooks {
             on_status_changed,
-            on_status_changed_data
+            on_status_changed_data,
         }));
     }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dmb_build(builder_ptr: *mut *mut DeadlineMonitorBuilder) -> *mut DeadlineMonitor {
+extern "C" fn hm_dmb_build(builder_ptr: *mut *mut DeadlineMonitorBuilder) -> *mut DeadlineMonitor {
     let builder = unsafe { Box::from_raw(*builder_ptr) };
-    unsafe { *builder_ptr = null_mut(); }
+    unsafe {
+        *builder_ptr = null_mut();
+    }
 
     // TODO: Propagate error.
     match builder.build() {
@@ -75,14 +89,22 @@ extern fn hm_dmb_build(builder_ptr: *mut *mut DeadlineMonitorBuilder) -> *mut De
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_dm_delete(monitor: *mut *mut DeadlineMonitor) {
+extern "C" fn hm_dm_delete(monitor: *mut *mut DeadlineMonitor) {
     let _monitor = unsafe { Box::from_raw(*monitor) };
-    unsafe { *monitor = null_mut(); }
+    unsafe {
+        *monitor = null_mut();
+    }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dm_new_deadline(monitor: *mut DeadlineMonitor, min_ms: u64, max_ms: u64) -> *mut Deadline {
-    let result = unsafe { (*monitor).create_deadline(Duration::from_millis(min_ms), Duration::from_millis(max_ms)) };
+extern "C" fn hm_dm_new_deadline(
+    monitor: *mut DeadlineMonitor,
+    min_ms: u64,
+    max_ms: u64,
+) -> *mut Deadline {
+    let result = unsafe {
+        (*monitor).create_deadline(Duration::from_millis(min_ms), Duration::from_millis(max_ms))
+    };
 
     match result {
         Ok(deadline) => Box::into_raw(Box::new(deadline)),
@@ -91,19 +113,19 @@ extern fn hm_dm_new_deadline(monitor: *mut DeadlineMonitor, min_ms: u64, max_ms:
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dm_enable(monitor: *mut DeadlineMonitor) {
+extern "C" fn hm_dm_enable(monitor: *mut DeadlineMonitor) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).enable() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dm_disable(monitor: *mut DeadlineMonitor) {
+extern "C" fn hm_dm_disable(monitor: *mut DeadlineMonitor) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).disable() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dm_status(monitor: *const DeadlineMonitor) -> i32 {
+extern "C" fn hm_dm_status(monitor: *const DeadlineMonitor) -> i32 {
     unsafe { (*monitor).status() as i32 }
 }
 
@@ -112,30 +134,32 @@ extern fn hm_dm_status(monitor: *const DeadlineMonitor) -> i32 {
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_dl_delete(deadline: *mut *mut Deadline) {
+extern "C" fn hm_dl_delete(deadline: *mut *mut Deadline) {
     let _deadline = unsafe { Box::from_raw(*deadline) };
-    unsafe { *deadline = null_mut(); }
+    unsafe {
+        *deadline = null_mut();
+    }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dl_start(deadline: *mut Deadline) {
+extern "C" fn hm_dl_start(deadline: *mut Deadline) {
     // TODO: Propagate error.
     let _ = unsafe { (*deadline).start() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dl_stop(deadline: *mut Deadline) {
+extern "C" fn hm_dl_stop(deadline: *mut Deadline) {
     // TODO: Propagate error.
     let _ = unsafe { (*deadline).stop() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dl_min_ms(deadline: *const Deadline) -> u64 {
+extern "C" fn hm_dl_min_ms(deadline: *const Deadline) -> u64 {
     unsafe { (*deadline).min().as_millis() as u64 }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_dl_max_ms(deadline: *const Deadline) -> u64 {
+extern "C" fn hm_dl_max_ms(deadline: *const Deadline) -> u64 {
     unsafe { (*deadline).max().as_millis() as u64 }
 }
 
@@ -144,7 +168,7 @@ extern fn hm_dl_max_ms(deadline: *const Deadline) -> u64 {
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_state_from_str(name: *const c_char) -> State {
+extern "C" fn hm_lm_state_from_str(name: *const c_char) -> State {
     let name = unsafe { CStr::from_ptr(name) };
 
     match name.to_str() {
@@ -154,23 +178,25 @@ extern fn hm_lm_state_from_str(name: *const c_char) -> State {
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lmb_new(initial_state: State) -> *mut LogicMonitorBuilder {
+extern "C" fn hm_lmb_new(initial_state: State) -> *mut LogicMonitorBuilder {
     Box::into_raw(Box::new(LogicMonitorBuilder::new(initial_state)))
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lmb_delete(builder_ptr: *mut *mut LogicMonitorBuilder) {
+extern "C" fn hm_lmb_delete(builder_ptr: *mut *mut LogicMonitorBuilder) {
     let _builder = unsafe { Box::from_raw(*builder_ptr) };
-    unsafe { *builder_ptr = null_mut(); }
+    unsafe {
+        *builder_ptr = null_mut();
+    }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lmb_add_transition(builder: *mut LogicMonitorBuilder, from: State, to: State) {
+extern "C" fn hm_lmb_add_transition(builder: *mut LogicMonitorBuilder, from: State, to: State) {
     unsafe { (*builder).add_transition(from, to) };
 }
 
-type LogicMonitorOnStatusChanged = unsafe extern fn(data: *mut c_void, from: i32, to: i32);
-type LogicMonitorOnStateChanged = unsafe extern fn(data: *mut c_void, from: State, to: State);
+type LogicMonitorOnStatusChanged = unsafe extern "C" fn(data: *mut c_void, from: i32, to: i32);
+type LogicMonitorOnStateChanged = unsafe extern "C" fn(data: *mut c_void, from: State, to: State);
 
 struct LogicMonitorHooks {
     on_status_changed: LogicMonitorOnStatusChanged,
@@ -194,13 +220,13 @@ impl crate::logic_monitor::Hook for LogicMonitorHooks {
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lmb_add_hook(
+extern "C" fn hm_lmb_add_hook(
     builder: *mut LogicMonitorBuilder,
     on_status_changed: LogicMonitorOnStatusChanged,
     on_status_changed_data: *mut c_void,
     on_state_changed: LogicMonitorOnStateChanged,
-    on_state_changed_data: *mut c_void)
-{
+    on_state_changed_data: *mut c_void,
+) {
     unsafe {
         (*builder).add_hook(Box::new(LogicMonitorHooks {
             on_status_changed,
@@ -212,9 +238,11 @@ extern fn hm_lmb_add_hook(
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lmb_build(builder_ptr: *mut *mut LogicMonitorBuilder) -> *mut LogicMonitor {
+extern "C" fn hm_lmb_build(builder_ptr: *mut *mut LogicMonitorBuilder) -> *mut LogicMonitor {
     let builder = unsafe { Box::from_raw(*builder_ptr) };
-    unsafe { *builder_ptr = null_mut(); }
+    unsafe {
+        *builder_ptr = null_mut();
+    }
 
     // TODO: Propagate error.
     match builder.build() {
@@ -228,37 +256,93 @@ extern fn hm_lmb_build(builder_ptr: *mut *mut LogicMonitorBuilder) -> *mut Logic
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_delete(monitor: *mut *mut LogicMonitor) {
+extern "C" fn hm_lm_delete(monitor: *mut *mut LogicMonitor) {
     let _monitor = unsafe { Box::from_raw(*monitor) };
-    unsafe { *monitor = null_mut(); }
+    unsafe {
+        *monitor = null_mut();
+    }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_transition(monitor: *mut LogicMonitor, to: State) {
+extern "C" fn hm_lm_transition(monitor: *mut LogicMonitor, to: State) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).transition(to) };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_enable(monitor: *mut LogicMonitor) {
+extern "C" fn hm_lm_enable(monitor: *mut LogicMonitor) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).enable() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_disable(monitor: *mut LogicMonitor) {
+extern "C" fn hm_lm_disable(monitor: *mut LogicMonitor) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).disable() };
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_status(monitor: *const LogicMonitor) -> i32 {
+extern "C" fn hm_lm_status(monitor: *const LogicMonitor) -> i32 {
     unsafe { (*monitor).status() as i32 }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_lm_state(monitor: *const LogicMonitor) -> State {
+extern "C" fn hm_lm_state(monitor: *const LogicMonitor) -> State {
     unsafe { (*monitor).state() }
+}
+
+//
+// HeartbeatMonitor
+//
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_enable(monitor: *mut HeartbeatMonitor) {
+    // TODO: Propagate error.
+    let _ = unsafe { (*monitor).enable() };
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_disable(monitor: *mut HeartbeatMonitor) {
+    // TODO: Propagate error.
+    let _ = unsafe { (*monitor).disable() };
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_check_heartbeat(monitor: *mut HeartbeatMonitor) -> i32 {
+    // TODO: Propagate error.
+    unsafe { (*monitor).check_heartbeat() as i32 }
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_heartbeat(monitor: *mut HeartbeatMonitor) {
+    // TODO: Propagate error.
+    let _ = unsafe { (*monitor).heartbeat() };
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_get_heartbeat_cycle(monitor: *mut HeartbeatMonitor) -> u64 {
+    // TODO: Propagate error.
+    unsafe { (*monitor).get_heartbeat_cycle().as_millis() as u64 }
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_get_last_heartbeat(monitor: *mut HeartbeatMonitor) -> u64 {
+    // TODO: Propagate error.
+    unsafe { (*monitor).get_last_heartbeat().elapsed().as_millis() as u64 }
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_delete(monitor: *mut *mut HeartbeatMonitor) {
+    let _monitor = unsafe { Box::from_raw(*monitor) };
+    unsafe {
+        *monitor = null_mut();
+    }
+}
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_hbm_new(maximum_heartbeat_cycle_ms: u64) -> *mut HeartbeatMonitor {
+    Box::into_raw(Box::new(HeartbeatMonitor::new(Duration::from_millis(
+        maximum_heartbeat_cycle_ms,
+    ))))
 }
 
 //
@@ -266,29 +350,40 @@ extern fn hm_lm_state(monitor: *const LogicMonitor) -> State {
 //
 
 #[unsafe(no_mangle)]
-extern fn hm_new(
+extern "C" fn hm_new(
     deadline_monitor: *const DeadlineMonitor,
     logic_monitor: *const LogicMonitor,
+    heartbeat_monitor: *const HeartbeatMonitor,
     alive_monitor: *const AliveMonitorFfi,
-    report_interval_ms: u64) -> *mut HealthMonitor
-{
-    let (deadline_monitor, logic_monitor, alive_monitor) = unsafe { (&*deadline_monitor, &*logic_monitor, &*alive_monitor) };
+    report_interval_ms: u64,
+) -> *mut HealthMonitor {
+    let (deadline_monitor, logic_monitor, heartbeat_monitor, alive_monitor) = unsafe {
+        (
+            &*deadline_monitor,
+            &*logic_monitor,
+            &*heartbeat_monitor,
+            &*alive_monitor,
+        )
+    };
 
     Box::into_raw(Box::new(HealthMonitor::new(
         deadline_monitor,
         logic_monitor,
+        heartbeat_monitor,
         alive_monitor,
-        Duration::from_millis(report_interval_ms)
+        Duration::from_millis(report_interval_ms),
     )))
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_delete(monitor: *mut *mut HealthMonitor) {
+extern "C" fn hm_delete(monitor: *mut *mut HealthMonitor) {
     let _monitor = unsafe { Box::from_raw(*monitor) };
-    unsafe { *monitor = null_mut(); }
+    unsafe {
+        *monitor = null_mut();
+    }
 }
 
 #[unsafe(no_mangle)]
-extern fn hm_status(monitor: *const HealthMonitor) -> i32 {
+extern "C" fn hm_status(monitor: *const HealthMonitor) -> i32 {
     unsafe { (*monitor).status() as i32 }
 }

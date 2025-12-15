@@ -203,11 +203,43 @@ private:
     hm_LogicMonitorBuilder *ptr;
 };
 
+struct HeartbeatMonitor
+{
+    HeartbeatMonitor(hm_HeartbeatMonitor *ptr) : ptr(ptr) {}
+
+    HeartbeatMonitor(const LogicMonitor &) = delete;
+    HeartbeatMonitor(LogicMonitor &&) = delete;
+    HeartbeatMonitor &operator=(const HeartbeatMonitor &) = delete;
+    HeartbeatMonitor &operator=(HeartbeatMonitor &&) = delete;
+
+    ~HeartbeatMonitor() { hm_hbm_delete(&this->ptr); }
+
+    void enable() { hm_hbm_enable(this->ptr); }
+
+    void disable() { hm_hbm_disable(this->ptr); }
+
+    uint64_t get_heartbeat_cycle() { return hm_hbm_get_heartbeat_cycle(this->ptr); }
+
+    uint64_t get_last_heartbeat() { return hm_hbm_get_last_heartbeat(this->ptr); }
+
+    void heartbeat() { hm_hbm_heartbeat(this->ptr); }
+
+    hm_HeartbeatMonitorStatus check_heartbeat() { return hm_hbm_check_heartbeat(this->ptr); }
+
+    hm_HeartbeatMonitor *ffi_ptr() { return this->ptr; }
+
+    const hm_HeartbeatMonitor *ffi_ptr() const { return this->ptr; }
+
+private:
+    hm_HeartbeatMonitor *ptr;
+};
+
 struct HealthMonitor
 {
     HealthMonitor(const DeadlineMonitor &deadline_monitor, const LogicMonitor &logic_monitor,
+                  const HeartbeatMonitor &heartbeat_monitor,
                   const AliveMonitorFfi &alive_monitor, std::chrono::milliseconds report_interval)
-        : ptr(hm_new(deadline_monitor.ffi_ptr(), logic_monitor.ffi_ptr(), &alive_monitor,
+        : ptr(hm_new(deadline_monitor.ffi_ptr(), logic_monitor.ffi_ptr(), heartbeat_monitor.ffi_ptr(), &alive_monitor,
                      report_interval.count()))
     {
     }

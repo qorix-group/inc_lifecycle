@@ -23,6 +23,14 @@ enum class hm_Status : int32_t
     Failed,
 };
 
+enum class hm_HeartbeatMonitorStatus : int32_t
+{
+    Healthy,
+    TimedOut,
+    Disabled,
+    Enabled,
+};
+
 enum class hm_Error : int32_t
 {
     NoError,
@@ -98,12 +106,27 @@ extern "C"
     hm_LogicMonitorState hm_lm_state(const hm_LogicMonitor *monitor);
 }
 
+struct hm_HeartbeatMonitor;
+
+extern "C"
+{
+    hm_HeartbeatMonitor* hm_hbm_new(const uint64_t maximum_heartbeat_cycle_ms);
+    void hm_hbm_enable(hm_HeartbeatMonitor *monitor);
+    void hm_hbm_disable(hm_HeartbeatMonitor *monitor);
+    hm_HeartbeatMonitorStatus hm_hbm_check_heartbeat(hm_HeartbeatMonitor *monitor);
+    void hm_hbm_heartbeat(hm_HeartbeatMonitor *monitor);
+    void hm_hbm_delete(hm_HeartbeatMonitor **monitor);
+    uint64_t hm_hbm_get_heartbeat_cycle(hm_HeartbeatMonitor *monitor);
+    uint64_t hm_hbm_get_last_heartbeat(hm_HeartbeatMonitor *monitor);
+}
+
 struct hm_HealthMonitor;
 
 extern "C"
 {
     hm_HealthMonitor *hm_new(const hm_DeadlineMonitor *deadline_monitor,
                              const hm_LogicMonitor *logic_monitor,
+                             const hm_HeartbeatMonitor *heartbeat_monitor,
                              const AliveMonitorFfi *alive_monitor, uint64_t report_interval_ms);
     void hm_delete(hm_HealthMonitor **monitor);
     hm_Status hm_status(const hm_HealthMonitor *monitor);

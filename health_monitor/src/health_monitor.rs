@@ -9,11 +9,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-use std::{sync::{atomic::{AtomicU32, Ordering}, Arc}, thread::{self}, time::{Duration, Instant}};
-use crate::deadline_monitor::*;
-use crate::logic_monitor::*;
 use crate::common;
+use crate::logic_monitor::*;
+use crate::{deadline_monitor::*, heartbeat_monitor::*};
 use alive_monitor::alive_monitor::AliveMonitor;
+use std::{
+    sync::{
+        Arc,
+        atomic::{AtomicU32, Ordering},
+    },
+    thread::{self},
+    time::{Duration, Instant},
+};
 
 pub struct HealthMonitor {
     status: Arc<AtomicU32>,
@@ -24,14 +31,23 @@ impl HealthMonitor {
     pub fn new(
         deadline_monitor: &DeadlineMonitor,
         logic_monitor: &LogicMonitor,
+        heartbeat_monitor: &HeartbeatMonitor,
         alive_monitor: &AliveMonitor,
-        report_interval: Duration) -> Self
-    {
+        report_interval: Duration,
+    ) -> Self {
         let status = Arc::new(AtomicU32::new(common::Status::Running.into()));
         let deadline_monitor_clone = deadline_monitor.clone();
         let logic_monitor_clone = logic_monitor.clone();
+        let mut heartbeat_monitor_clone = heartbeat_monitor.clone();
         let alive_monitor_clone = alive_monitor.clone();
         let status_clone = Arc::clone(&status);
+
+        let heartbeat_monitor_cycle = heartbeat_monitor_clone.get_heartbeat_cycle();
+        let cycle_time = if heartbeat_monitor_cycle > report_interval {
+            report_interval
+        } else {
+            heartbeat_monitor_cycle
+        };
         let _ = thread::spawn(move || {
             loop {
                 let start_time = Instant::now();
@@ -44,11 +60,16 @@ impl HealthMonitor {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 
+                if heartbeat_monitor_clone.check_heartbeat() == HeartbeatMonitorStatus::TimedOut {
+                    status_clone.store(common::Status::Failed.into(), Ordering::Release);
+                }
+
                 // TODO: Report failure. Right now just not reporting alive status.
                 if status_clone.load(Ordering::Acquire) == common::Status::Running.into() {
                     alive_monitor_clone.keep_alive();
 
-                    let sleep_duration = report_interval.saturating_sub(Instant::now().duration_since(start_time));
+                    let sleep_duration =
+                        cycle_time.saturating_sub(Instant::now().duration_since(start_time));
                     if sleep_duration > Duration::ZERO {
                         thread::sleep(sleep_duration);
                     }
@@ -58,9 +79,7 @@ impl HealthMonitor {
             }
         });
 
-        Self {
-            status,
-        }
+        Self { status }
     }
 
     pub fn status(&self) -> common::Status {
@@ -70,11 +89,11 @@ impl HealthMonitor {
 
 impl Drop for HealthMonitor {
     fn drop(&mut self) {
-        self.status.store(common::Status::Stopped.into(), Ordering::Release);
+        self.status
+            .store(common::Status::Stopped.into(), Ordering::Release);
         // TODO: join?
     }
 }
 
 #[cfg(test)]
-mod tests {
-}
+mod tests {}

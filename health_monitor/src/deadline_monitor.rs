@@ -9,9 +9,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
+use crate::common::{Error, Status};
 use iceoryx2_bb_lock_free::mpmc::container::*;
-use std::{sync::{Arc, Mutex, MutexGuard}, time::{Duration, Instant}};
-use crate::common::{Status, Error};
+use std::{
+    sync::{Arc, Mutex, MutexGuard},
+    time::{Duration, Instant},
+};
 
 pub trait Hook: Send + Sync {
     fn on_status_change(&self, from: Status, to: Status);
@@ -23,9 +26,7 @@ pub struct DeadlineMonitorBuilder {
 
 impl DeadlineMonitorBuilder {
     pub fn new() -> Self {
-        DeadlineMonitorBuilder {
-            hooks: Vec::new()
-        }
+        DeadlineMonitorBuilder { hooks: Vec::new() }
     }
 
     // TODO: This API is annoying to use because of the &mut self, but for now it's necessary to implement the FFI API.
@@ -44,14 +45,14 @@ impl DeadlineMonitorBuilder {
                 container: FixedSizeContainer::new(),
                 status: Mutex::new(Status::Running),
                 hooks: self.hooks,
-            })
+            }),
         })
     }
 }
 
 #[derive(Clone)]
 pub struct DeadlineMonitor {
-    inner: Arc<Inner>
+    inner: Arc<Inner>,
 }
 
 impl DeadlineMonitor {
@@ -74,7 +75,11 @@ impl DeadlineMonitor {
         })
     }
 
-    pub fn create_deadline_guard(&self, min: Duration, max: Duration) -> Result<DeadlineGuard, Error> {
+    pub fn create_deadline_guard(
+        &self,
+        min: Duration,
+        max: Duration,
+    ) -> Result<DeadlineGuard, Error> {
         let mut deadline = self.create_deadline(min, max)?;
         deadline.start()?;
 
@@ -84,7 +89,8 @@ impl DeadlineMonitor {
     pub fn enable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Disabled {
-            self.inner.update_locked_status_and_notify(&mut status, Status::Running);
+            self.inner
+                .update_locked_status_and_notify(&mut status, Status::Running);
             Ok(())
         } else {
             Err(Error::NotAllowed)
@@ -94,7 +100,8 @@ impl DeadlineMonitor {
     pub fn disable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Running {
-            self.inner.update_locked_status_and_notify(&mut status, Status::Disabled);
+            self.inner
+                .update_locked_status_and_notify(&mut status, Status::Disabled);
             Ok(())
         } else {
             Err(Error::NotAllowed)
@@ -129,7 +136,8 @@ impl DeadlineMonitor {
         let mut status = self.inner.status.lock().unwrap();
 
         if failed && *status == Status::Running {
-            self.inner.update_locked_status_and_notify(&mut status, Status::Failed);
+            self.inner
+                .update_locked_status_and_notify(&mut status, Status::Failed);
         }
 
         *status
@@ -143,7 +151,7 @@ pub struct Deadline {
     max: Duration,
 
     handle: Option<ContainerHandle>, // TODO: Option shouldn't be necessary, but there's no public API to create a default ContainerHandle.
-    
+
     // TODO: Would've been nicer if remove returned ActiveDeadline, then wouldn't have to keep this stored.
     earliest: Instant,
     latest: Instant,
@@ -156,20 +164,22 @@ impl Deadline {
         if self.handle.is_none() {
             let now = Instant::now();
 
-            self.earliest = now + self.min; 
+            self.earliest = now + self.min;
             self.latest = now + self.max;
 
-            let res = unsafe { self.inner.container.add(ActiveDeadline {
-                earliest: self.earliest,
-                latest: self.latest,
-            }) };
+            let res = unsafe {
+                self.inner.container.add(ActiveDeadline {
+                    earliest: self.earliest,
+                    latest: self.latest,
+                })
+            };
 
             match res {
                 Ok(handle) => {
                     self.handle = Some(handle);
                     Ok(())
-                },
-                Err(_) => Err(Error::OutOfMemory)
+                }
+                Err(_) => Err(Error::OutOfMemory),
             }
         } else {
             Err(Error::NotAllowed)
@@ -186,7 +196,8 @@ impl Deadline {
             if now < self.earliest || now > self.latest {
                 let mut status = self.inner.status.lock().unwrap();
                 if *status == Status::Running {
-                    self.inner.update_locked_status_and_notify(&mut status, Status::Failed);
+                    self.inner
+                        .update_locked_status_and_notify(&mut status, Status::Failed);
                     // TODO: Better error name.
                     return Err(Error::Generic);
                 }
@@ -235,7 +246,11 @@ unsafe impl Send for Inner {}
 unsafe impl Sync for Inner {}
 
 impl Inner {
-    fn update_locked_status_and_notify(&self, locked_status: &mut MutexGuard<'_, Status>, to: Status) {
+    fn update_locked_status_and_notify(
+        &self,
+        locked_status: &mut MutexGuard<'_, Status>,
+        to: Status,
+    ) {
         let from = **locked_status;
         **locked_status = to;
         // This is done under a lock to guarantee the order of reported status changes.
@@ -254,8 +269,8 @@ struct ActiveDeadline {
 
 #[cfg(test)]
 mod tests {
-    use std::thread;
     use super::*;
+    use std::thread;
 
     struct LoggerCondition;
 
@@ -270,13 +285,15 @@ mod tests {
             println!("Status changed from {:?} to {:?}", from, to);
         }
     }
-    
+
     #[test]
     fn disable_enable() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
-        
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
+
         assert_eq!(deadline_monitor.status(), Status::Running);
         assert_eq!(deadline_monitor.disable(), Ok(()));
         assert_eq!(deadline_monitor.status(), Status::Disabled);
@@ -288,8 +305,10 @@ mod tests {
     fn enable_while_enabled() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
-        
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
+
         assert_eq!(deadline_monitor.status(), Status::Running);
         assert_eq!(deadline_monitor.enable(), Err(Error::NotAllowed));
         assert_eq!(deadline_monitor.status(), Status::Running);
@@ -299,8 +318,10 @@ mod tests {
     fn disable_while_disabled() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
-        
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
+
         assert_eq!(deadline_monitor.status(), Status::Running);
         assert_eq!(deadline_monitor.disable(), Ok(()));
         assert_eq!(deadline_monitor.status(), Status::Disabled);
@@ -314,9 +335,13 @@ mod tests {
     fn min_larger_than_max() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
 
-        let create_err = deadline_monitor.create_deadline(Duration::from_millis(100), Duration::from_millis(99)).err();
+        let create_err = deadline_monitor
+            .create_deadline(Duration::from_millis(100), Duration::from_millis(99))
+            .err();
         assert!(create_err.is_some());
         assert_eq!(create_err.unwrap(), Error::BadParameter);
     }
@@ -325,7 +350,9 @@ mod tests {
     fn deadline_met() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let mut deadline = deadline_monitor_clone
@@ -346,7 +373,9 @@ mod tests {
     fn deadline_too_slow() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let mut deadline = deadline_monitor_clone
@@ -362,12 +391,14 @@ mod tests {
 
         assert_eq!(deadline_monitor.status(), Status::Failed);
     }
-    
+
     #[test]
     fn deadline_too_fast() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let mut deadline = deadline_monitor_clone
@@ -387,7 +418,9 @@ mod tests {
     fn deadline_too_slow_while_disabled() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         deadline_monitor.disable().expect("Failed to disable.");
         assert_eq!(deadline_monitor.status(), Status::Disabled);
 
@@ -399,7 +432,9 @@ mod tests {
 
             deadline.start().expect("Failed to start.");
             thread::sleep(Duration::from_millis(2000));
-            deadline.stop().expect("Failed to stop even though disabled.");
+            deadline
+                .stop()
+                .expect("Failed to stop even though disabled.");
         });
 
         let _ = t1.join();
@@ -412,7 +447,9 @@ mod tests {
     fn deadline_too_fast_while_disabled() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         deadline_monitor.disable().expect("Failed to disable.");
         assert_eq!(deadline_monitor.status(), Status::Disabled);
 
@@ -423,7 +460,9 @@ mod tests {
                 .unwrap();
 
             deadline.start().expect("Failed to start.");
-            deadline.stop().expect("Failed to stop even though disabled.");
+            deadline
+                .stop()
+                .expect("Failed to stop even though disabled.");
         });
 
         let _ = t1.join();
@@ -436,7 +475,9 @@ mod tests {
     fn deadline_guard_met() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let _guard = deadline_monitor_clone
@@ -455,7 +496,9 @@ mod tests {
     fn deadline_guard_too_slow() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let _guard = deadline_monitor_clone
@@ -474,7 +517,9 @@ mod tests {
     fn deadline_guard_too_fast() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let deadline_monitor_clone = deadline_monitor.clone();
         let t1 = thread::spawn(move || {
             let _guard = deadline_monitor_clone
@@ -491,10 +536,12 @@ mod tests {
     fn stop_new_deadline() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let mut deadline = deadline_monitor
-                .create_deadline(Duration::ZERO, Duration::from_millis(1000))
-                .unwrap();
+            .create_deadline(Duration::ZERO, Duration::from_millis(1000))
+            .unwrap();
 
         assert_eq!(deadline.stop(), Err(Error::NotAllowed));
     }
@@ -503,10 +550,12 @@ mod tests {
     fn start_started_deadline() {
         let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
         deadline_monitor_builder.add_hook(Box::new(LoggerCondition::new()));
-        let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+        let deadline_monitor = deadline_monitor_builder
+            .build()
+            .expect("Failed to build the monitor.");
         let mut deadline = deadline_monitor
-                .create_deadline(Duration::ZERO, Duration::from_millis(1000))
-                .unwrap();
+            .create_deadline(Duration::ZERO, Duration::from_millis(1000))
+            .unwrap();
 
         assert_eq!(deadline.start(), Ok(()));
         assert_eq!(deadline.start(), Err(Error::NotAllowed));

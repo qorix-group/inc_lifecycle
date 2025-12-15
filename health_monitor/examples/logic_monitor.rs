@@ -9,8 +9,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-use std::{thread, time::Duration};
 use health_monitor::{common::*, logic_monitor::*};
+use std::{thread, time::Duration};
 
 struct DebugHook {}
 
@@ -31,7 +31,7 @@ fn main() {
         .add_transition("Running".into(), "Paused".into())
         .add_transition("Paused".into(), "Running".into())
         .add_transition("Running".into(), "Stopped".into())
-        .add_hook(Box::new(DebugHook{}));
+        .add_hook(Box::new(DebugHook {}));
     let monitor = builder.build().expect("Failed to build the monitor");
 
     let monitor1 = monitor.clone();

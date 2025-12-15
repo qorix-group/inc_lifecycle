@@ -9,8 +9,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-use std::{collections::{HashMap, HashSet}, hash::{DefaultHasher, Hash, Hasher}, sync::{Arc, Mutex, MutexGuard}};
-use crate::common::{Status, Error};
+use crate::common::{Error, Status};
+use std::{
+    collections::{HashMap, HashSet},
+    hash::{DefaultHasher, Hash, Hasher},
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 pub trait Hook: Send + Sync {
     fn on_status_change(&self, from: Status, to: Status);
@@ -20,7 +24,7 @@ pub trait Hook: Send + Sync {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(C)]
 pub struct State {
-    pub(crate) hash: u64
+    pub(crate) hash: u64,
 }
 
 impl State {
@@ -29,7 +33,7 @@ impl State {
         name.hash(&mut hasher);
 
         Self {
-            hash: hasher.finish()
+            hash: hasher.finish(),
         }
     }
 }
@@ -59,7 +63,7 @@ impl LogicMonitorBuilder {
         Self {
             graph: HashMap::new(),
             hooks: Vec::new(),
-            initial_state
+            initial_state,
         }
     }
 
@@ -138,7 +142,8 @@ impl LogicMonitor {
         }
 
         // This code is reached if state change failed.
-        self.inner.update_locked_status_and_notify(&mut status, Status::Failed);
+        self.inner
+            .update_locked_status_and_notify(&mut status, Status::Failed);
 
         Err(Error::NotAllowed)
     }
@@ -146,7 +151,8 @@ impl LogicMonitor {
     pub fn enable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Disabled {
-            self.inner.update_locked_status_and_notify(&mut status, Status::Running);
+            self.inner
+                .update_locked_status_and_notify(&mut status, Status::Running);
             Ok(())
         } else {
             Err(Error::NotAllowed)
@@ -156,7 +162,8 @@ impl LogicMonitor {
     pub fn disable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Running {
-            self.inner.update_locked_status_and_notify(&mut status, Status::Disabled);
+            self.inner
+                .update_locked_status_and_notify(&mut status, Status::Disabled);
             Ok(())
         } else {
             Err(Error::NotAllowed)
@@ -176,7 +183,7 @@ impl LogicMonitor {
 
 struct Inner {
     graph: HashMap<State, HashSet<State>>, // Safety: This is, and should remain, read-only.
-    hooks: Vec<Box<dyn Hook>>, // Safety: This is, and should remain, read-only.
+    hooks: Vec<Box<dyn Hook>>,             // Safety: This is, and should remain, read-only.
     status: Mutex<Status>,
     state: Mutex<State>,
 }
@@ -186,7 +193,11 @@ unsafe impl Send for Inner {}
 unsafe impl Sync for Inner {}
 
 impl Inner {
-    fn update_locked_status_and_notify(&self, locked_status: &mut MutexGuard<'_, Status>, to: Status) {
+    fn update_locked_status_and_notify(
+        &self,
+        locked_status: &mut MutexGuard<'_, Status>,
+        to: Status,
+    ) {
         let from = **locked_status;
         **locked_status = to;
         // This is done under a lock to guarantee the order of reported status changes.
@@ -260,7 +271,7 @@ mod tests {
             .add_transition("Running".into(), "Paused".into())
             .add_transition("Paused".into(), "Running".into())
             .add_transition("Running".into(), "Stopped".into())
-            .add_hook(Box::new(DebugHook{}));
+            .add_hook(Box::new(DebugHook {}));
         let monitor = builder.build().expect("Failed to build the monitor");
 
         assert_eq!(monitor.state(), "Init".into());

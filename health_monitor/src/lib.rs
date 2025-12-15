@@ -9,8 +9,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-pub mod deadline_monitor;
-pub mod logic_monitor;
-pub mod health_monitor;
 pub mod common;
+pub mod deadline_monitor;
 mod ffi;
+pub mod health_monitor;
+pub mod heartbeat_monitor;
+pub mod logic_monitor;

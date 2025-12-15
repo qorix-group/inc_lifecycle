@@ -9,9 +9,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-use std::{thread, time::Duration};
-use health_monitor::{common::*, health_monitor::*, deadline_monitor::*, logic_monitor::*};
 use alive_monitor::alive_monitor::*;
+use health_monitor::{
+    common::*,
+    deadline_monitor::*,
+    health_monitor::*,
+    heartbeat_monitor::{self, HeartbeatMonitor},
+    logic_monitor::*,
+};
+use std::{thread, time::Duration};
 
 struct DeadlineMonitorDebugHook;
 
@@ -37,8 +43,10 @@ fn main() {
     let heartbeat_interval = Duration::from_millis(500);
 
     let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
-    deadline_monitor_builder.add_hook(Box::new(DeadlineMonitorDebugHook{}));
-    let deadline_monitor = deadline_monitor_builder.build().expect("Failed to build the monitor.");
+    deadline_monitor_builder.add_hook(Box::new(DeadlineMonitorDebugHook {}));
+    let deadline_monitor = deadline_monitor_builder
+        .build()
+        .expect("Failed to build the monitor.");
 
     let mut logic_monitor_builder = LogicMonitorBuilder::new("Init".into());
     logic_monitor_builder
@@ -46,17 +54,31 @@ fn main() {
         .add_transition("Running".into(), "Paused".into())
         .add_transition("Paused".into(), "Running".into())
         .add_transition("Running".into(), "Stopped".into())
-        .add_hook(Box::new(LogicMonitorDebugHook{}));
-    let logic_monitor = logic_monitor_builder.build().expect("Failed to build the monitor");
+        .add_hook(Box::new(LogicMonitorDebugHook {}));
+    let logic_monitor = logic_monitor_builder
+        .build()
+        .expect("Failed to build the monitor");
 
     let alive_monitor = AliveMonitor::new(heartbeat_interval);
 
-    let health_monitor = HealthMonitor::new(&deadline_monitor, &logic_monitor, &alive_monitor, heartbeat_interval / 2);
+    let heartbeat_monitor = HeartbeatMonitor::new(Duration::from_millis(2000));
+
+    let health_monitor = HealthMonitor::new(
+        &deadline_monitor,
+        &logic_monitor,
+        &heartbeat_monitor,
+        &alive_monitor,
+        heartbeat_interval / 2,
+    );
 
     let deadline_monitor_clone_1 = deadline_monitor.clone();
     let t1 = thread::spawn(move || {
-        let mut deadline_1 = deadline_monitor_clone_1.create_deadline(Duration::from_millis(10), Duration::from_millis(1000)).unwrap();
-        let mut deadline_2 = deadline_monitor_clone_1.create_deadline(Duration::from_millis(50), Duration::from_millis(250)).unwrap();
+        let mut deadline_1 = deadline_monitor_clone_1
+            .create_deadline(Duration::from_millis(10), Duration::from_millis(1000))
+            .unwrap();
+        let mut deadline_2 = deadline_monitor_clone_1
+            .create_deadline(Duration::from_millis(50), Duration::from_millis(250))
+            .unwrap();
 
         // Run task 1.
         deadline_1.start().expect("Failed to start.");
@@ -76,13 +98,14 @@ fn main() {
 
     let deadline_monitor_clone_2 = deadline_monitor.clone();
     let t2 = thread::spawn(move || {
-        let mut deadline = deadline_monitor_clone_2.create_deadline(Duration::from_millis(10), Duration::from_millis(1000)).unwrap();
+        let mut deadline = deadline_monitor_clone_2
+            .create_deadline(Duration::from_millis(10), Duration::from_millis(1000))
+            .unwrap();
 
         deadline.start().expect("Failed to start.");
         thread::sleep(Duration::from_millis(250));
         let _ = deadline.stop();
     });
-
 
     let _ = t1.join();
     let _ = t2.join();
@@ -91,7 +114,9 @@ fn main() {
 
     let deadline_monitor_clone_3 = deadline_monitor.clone();
     let t3 = thread::spawn(move || {
-        let mut deadline = deadline_monitor_clone_3.create_deadline(Duration::from_millis(0), Duration::from_millis(100)).unwrap();
+        let mut deadline = deadline_monitor_clone_3
+            .create_deadline(Duration::from_millis(0), Duration::from_millis(100))
+            .unwrap();
 
         // This task is too long.
         deadline.start().expect("Failed to start.");
