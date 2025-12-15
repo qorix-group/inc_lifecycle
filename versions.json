@@ -2,5 +2,9 @@
   {
     "version": "main",
     "url": "https://qorix-group.github.io/inc_lifecycle/main/"
+  },
+  {
+    "version": "pr-3",
+    "url": "https://qorix-group.github.io/inc_lifecycle/pr-3/"
   }
 ]
