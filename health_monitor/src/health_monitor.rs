@@ -42,7 +42,7 @@ impl HealthMonitor {
         let alive_monitor_clone = alive_monitor.clone();
         let status_clone = Arc::clone(&status);
 
-        let heartbeat_monitor_cycle = heartbeat_monitor_clone.get_heartbeat_cycle();
+        let heartbeat_monitor_cycle = heartbeat_monitor_clone.heartbeat_cycle();
         let cycle_time = if heartbeat_monitor_cycle > report_interval {
             report_interval
         } else {
@@ -60,7 +60,7 @@ impl HealthMonitor {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 
-                if heartbeat_monitor_clone.check_heartbeat() == HeartbeatMonitorStatus::TimedOut {
+                if heartbeat_monitor_clone.status() == common::Status::Failed {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 

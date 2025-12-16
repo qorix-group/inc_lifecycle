@@ -15,7 +15,7 @@ logic_monitor:
 
 
 .PHONY: heartbeat_monitor
-logic_monitor:
+heartbeat_monitor:
 	g++ -std=c++23 heartbeat_monitor.cpp -l:libhealth_monitor.a -L../../target/debug/ -I../src/ -o build/heartbeat_monitor
 
 .PHONY: health_monitor

@@ -71,7 +71,7 @@ impl AliveMonitor {
         self.inner.alive_api.configure_minimum_time(minimum_time_ms);
     }
 
-    pub fn get_last_heartbeat(&self) -> Instant {
+    pub fn last_heartbeat(&self) -> Instant {
         return self.inner.last_heartbeat.load();
     }
 

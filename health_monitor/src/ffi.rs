@@ -307,27 +307,27 @@ extern "C" fn hm_hbm_disable(monitor: *mut HeartbeatMonitor) {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn hm_hbm_check_heartbeat(monitor: *mut HeartbeatMonitor) -> i32 {
+extern "C" fn hm_hbm_status(monitor: *mut HeartbeatMonitor) -> i32 {
     // TODO: Propagate error.
-    unsafe { (*monitor).check_heartbeat() as i32 }
+    unsafe { (*monitor).status() as i32 }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn hm_hbm_heartbeat(monitor: *mut HeartbeatMonitor) {
+extern "C" fn hm_hbm_send_heartbeat(monitor: *mut HeartbeatMonitor) {
     // TODO: Propagate error.
-    let _ = unsafe { (*monitor).heartbeat() };
+    let _ = unsafe { (*monitor).send_heartbeat() };
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn hm_hbm_get_heartbeat_cycle(monitor: *mut HeartbeatMonitor) -> u64 {
+extern "C" fn hm_hbm_heartbeat_cycle(monitor: *mut HeartbeatMonitor) -> u64 {
     // TODO: Propagate error.
-    unsafe { (*monitor).get_heartbeat_cycle().as_millis() as u64 }
+    unsafe { (*monitor).heartbeat_cycle().as_millis() as u64 }
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn hm_hbm_get_last_heartbeat(monitor: *mut HeartbeatMonitor) -> u64 {
+extern "C" fn hm_hbm_last_heartbeat(monitor: *mut HeartbeatMonitor) -> u64 {
     // TODO: Propagate error.
-    unsafe { (*monitor).get_last_heartbeat().elapsed().as_millis() as u64 }
+    unsafe { (*monitor).last_heartbeat().elapsed().as_millis() as u64 }
 }
 
 #[unsafe(no_mangle)]

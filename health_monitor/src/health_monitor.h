@@ -207,8 +207,8 @@ struct HeartbeatMonitor
 {
     HeartbeatMonitor(hm_HeartbeatMonitor *ptr) : ptr(ptr) {}
 
-    HeartbeatMonitor(const LogicMonitor &) = delete;
-    HeartbeatMonitor(LogicMonitor &&) = delete;
+    HeartbeatMonitor(const HeartbeatMonitor &) = delete;
+    HeartbeatMonitor(HeartbeatMonitor &&) = delete;
     HeartbeatMonitor &operator=(const HeartbeatMonitor &) = delete;
     HeartbeatMonitor &operator=(HeartbeatMonitor &&) = delete;
 
@@ -218,13 +218,13 @@ struct HeartbeatMonitor
 
     void disable() { hm_hbm_disable(this->ptr); }
 
-    uint64_t get_heartbeat_cycle() { return hm_hbm_get_heartbeat_cycle(this->ptr); }
+    uint64_t heartbeat_cycle() { return hm_hbm_heartbeat_cycle(this->ptr); }
 
-    uint64_t get_last_heartbeat() { return hm_hbm_get_last_heartbeat(this->ptr); }
+    uint64_t last_heartbeat() { return hm_hbm_get_last_heartbeat(this->ptr); }
 
-    void heartbeat() { hm_hbm_heartbeat(this->ptr); }
+    void send_heartbeat() { hm_hbm_send_heartbeat(this->ptr); }
 
-    hm_HeartbeatMonitorStatus check_heartbeat() { return hm_hbm_check_heartbeat(this->ptr); }
+    hm_Status status() { return hm_hbm_status(this->ptr); }
 
     hm_HeartbeatMonitor *ffi_ptr() { return this->ptr; }
 
@@ -237,10 +237,10 @@ private:
 struct HealthMonitor
 {
     HealthMonitor(const DeadlineMonitor &deadline_monitor, const LogicMonitor &logic_monitor,
-                  const HeartbeatMonitor &heartbeat_monitor,
-                  const AliveMonitorFfi &alive_monitor, std::chrono::milliseconds report_interval)
-        : ptr(hm_new(deadline_monitor.ffi_ptr(), logic_monitor.ffi_ptr(), heartbeat_monitor.ffi_ptr(), &alive_monitor,
-                     report_interval.count()))
+                  const HeartbeatMonitor &heartbeat_monitor, const AliveMonitorFfi &alive_monitor,
+                  std::chrono::milliseconds report_interval)
+        : ptr(hm_new(deadline_monitor.ffi_ptr(), logic_monitor.ffi_ptr(),
+                     heartbeat_monitor.ffi_ptr(), &alive_monitor, report_interval.count()))
     {
     }
 

@@ -1,14 +1,7 @@
+use crate::common::*;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{Duration, Instant};
-
-#[derive(PartialEq, Clone, Copy)]
-pub enum HeartbeatMonitorStatus {
-    Healthy = 0,
-    TimedOut,
-    Disabled,
-    Enabled,
-}
 
 struct AtomicInstant {
     nanos: AtomicU64,
@@ -49,40 +42,43 @@ impl HeartbeatMonitor {
         }
     }
 
-    pub fn get_heartbeat_cycle(&self) -> Duration {
+    pub fn heartbeat_cycle(&self) -> Duration {
         self.maximum_heartbeat_cycle_ms
     }
 
-    pub fn get_last_heartbeat(&self) -> Instant {
+    pub fn last_heartbeat(&self) -> Instant {
         self.last_heartbeat.load()
     }
 
-    pub fn enable(&mut self) {
+    pub fn enable(&mut self) -> Result<(), Error> {
         self.is_enabled.store(true, Ordering::Release);
         println!("Heartbeat monitor enabled.");
+        Ok(())
     }
 
-    pub fn disable(&mut self) {
+    pub fn disable(&mut self) -> Result<(), Error> {
         self.is_enabled.store(false, Ordering::Release);
         println!("Heartbeat monitor disabled.");
+        Ok(())
     }
 
-    pub fn check_heartbeat(&mut self) -> HeartbeatMonitorStatus {
+    pub fn status(&mut self) -> Status {
         if !self.is_enabled.load(Ordering::Acquire) {
-            return HeartbeatMonitorStatus::Disabled;
+            return Status::Disabled;
         }
         let now = Instant::now();
-        if now - self.get_last_heartbeat() > self.maximum_heartbeat_cycle_ms {
-            HeartbeatMonitorStatus::TimedOut
+        if now - self.last_heartbeat() > self.maximum_heartbeat_cycle_ms {
+            Status::Failed
         } else {
-            HeartbeatMonitorStatus::Healthy
+            Status::Running
         }
     }
 
-    pub fn heartbeat(&mut self) {
-        if self.is_enabled.load(Ordering::Acquire) {
-            return;
+    pub fn send_heartbeat(&mut self) -> Result<Status, Error> {
+        if !self.is_enabled.load(Ordering::Acquire) {
+            return Ok(Status::Disabled);
         }
         self.last_heartbeat.store(Instant::now());
+        Ok(Status::Running)
     }
 }

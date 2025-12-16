@@ -27,11 +27,11 @@ int main()
         [&]()
         {
             uint32_t iteration = 0U;
-            while(true)
+            while (true)
             {
                 if (iteration < 10)
                 {
-                    hm_hbm_heartbeat(heartbeat_monitor);
+                    hm_hbm_send_heartbeat(heartbeat_monitor);
                     std::this_thread::sleep_for(250ms);
                     std::cout << "Heartbeat sent!" << std::endl;
                 }
@@ -49,13 +49,14 @@ int main()
     std::thread t2(
         [&]()
         {
-            hm_HeartbeatMonitorStatus status = hm_HeartbeatMonitorStatus::Healthy;
-            while(status == hm_HeartbeatMonitorStatus::Healthy)
+            hm_Status status = hm_Status::Running;
+            while (status == hm_Status::Running)
             {
-                status = hm_hbm_check_heartbeat(heartbeat_monitor);
+                status = hm_hbm_status(heartbeat_monitor);
                 std::this_thread::sleep_for(100ms);
             }
-            std::cout << "heartbeat monitoring failed, status: " << static_cast<int32_t>(status) << std::endl;
+            std::cout << "heartbeat monitoring failed, status: " << static_cast<int32_t>(status)
+                      << std::endl;
         });
 
     t2.join();
