@@ -220,11 +220,9 @@ struct HeartbeatMonitor
 
     uint64_t heartbeat_cycle() { return hm_hbm_heartbeat_cycle(this->ptr); }
 
-    uint64_t last_heartbeat() { return hm_hbm_get_last_heartbeat(this->ptr); }
+    uint64_t last_heartbeat() { return hm_hbm_last_heartbeat(this->ptr); }
 
     void send_heartbeat() { hm_hbm_send_heartbeat(this->ptr); }
-
-    hm_Status status() { return hm_hbm_status(this->ptr); }
 
     hm_HeartbeatMonitor *ffi_ptr() { return this->ptr; }
 

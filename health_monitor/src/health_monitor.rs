@@ -60,7 +60,7 @@ impl HealthMonitor {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 
-                if heartbeat_monitor_clone.status() == common::Status::Failed {
+                if heartbeat_monitor_clone.step() == common::Status::Failed {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 

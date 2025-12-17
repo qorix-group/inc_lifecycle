@@ -307,12 +307,6 @@ extern "C" fn hm_hbm_disable(monitor: *mut HeartbeatMonitor) {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn hm_hbm_status(monitor: *mut HeartbeatMonitor) -> i32 {
-    // TODO: Propagate error.
-    unsafe { (*monitor).status() as i32 }
-}
-
-#[unsafe(no_mangle)]
 extern "C" fn hm_hbm_send_heartbeat(monitor: *mut HeartbeatMonitor) {
     // TODO: Propagate error.
     let _ = unsafe { (*monitor).send_heartbeat() };

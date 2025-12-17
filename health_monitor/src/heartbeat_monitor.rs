@@ -62,7 +62,7 @@ impl HeartbeatMonitor {
         Ok(())
     }
 
-    pub fn status(&mut self) -> Status {
+    pub(crate) fn step(&mut self) -> Status {
         if !self.is_enabled.load(Ordering::Acquire) {
             return Status::Disabled;
         }

@@ -18,11 +18,35 @@
 #include <mutex>
 #include <thread>
 
+#include "../alive_monitor/include/alive_monitor.h"
+
 using namespace std::chrono_literals;
 
 int main()
 {
     auto heartbeat_monitor = hm_hbm_new(500U);
+    auto deadline_monitor_builder = hm_dmb_new();
+    auto deadline_monitor = hm_dmb_build(&deadline_monitor_builder);
+
+    auto logic_monitor_builder = hm_lmb_new(hm_lm_state_from_str("Initial"));
+    hm_lmb_add_transition(logic_monitor_builder, hm_lm_state_from_str("Initial"),
+                          hm_lm_state_from_str("Running"));
+    hm_lmb_add_transition(logic_monitor_builder, hm_lm_state_from_str("Running"),
+                          hm_lm_state_from_str("Paused"));
+    hm_lmb_add_transition(logic_monitor_builder, hm_lm_state_from_str("Paused"),
+                          hm_lm_state_from_str("Running"));
+    hm_lmb_add_transition(logic_monitor_builder, hm_lm_state_from_str("Running"),
+                          hm_lm_state_from_str("Stopped"));
+    auto logic_monitor = hm_lmb_build(&logic_monitor_builder);
+    hm_lm_disable(logic_monitor);
+    hm_dm_disable(deadline_monitor);
+
+    auto minimum_time_ms = std::chrono::milliseconds{500};
+    auto alive_monitor = AliveMonitor(minimum_time_ms);
+
+    auto health_monitor = hm_new(deadline_monitor, logic_monitor, heartbeat_monitor,
+                                 alive_monitor.Release(), minimum_time_ms.count());
+
     std::thread t1(
         [&]()
         {
@@ -46,23 +70,9 @@ int main()
 
     t1.join();
 
-    std::thread t2(
-        [&]()
-        {
-            hm_Status status = hm_Status::Running;
-            while (status == hm_Status::Running)
-            {
-                status = hm_hbm_status(heartbeat_monitor);
-                std::this_thread::sleep_for(100ms);
-            }
-            std::cout << "heartbeat monitoring failed, status: " << static_cast<int32_t>(status)
-                      << std::endl;
-        });
-
-    t2.join();
-
-    hm_hbm_delete(&heartbeat_monitor);
-    assert(heartbeat_monitor == nullptr);
+    sleep(2);
+    hm_delete(&health_monitor);
+    assert(health_monitor == nullptr);
 
     return EXIT_SUCCESS;
 }
