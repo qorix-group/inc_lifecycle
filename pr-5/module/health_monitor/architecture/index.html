@@ -405,7 +405,7 @@
                   
   <section id="component-architecture">
 <span id="component-architecture-hm"></span><h1>Component Architecture<a class="headerlink" href="#component-architecture" title="Link to this heading">#</a></h1>
-<div class="need_container docutils container" id="SNCB-49daa7bf">
+<div class="need_container docutils container" id="SNCB-24bc04cc">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_document table" id="doc__health_monitor_architecture">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -476,7 +476,7 @@
 </section>
 <section id="static-architecture">
 <h2>Static Architecture<a class="headerlink" href="#static-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-9ca11a3c">
+<div class="need_container docutils container" id="SNCB-ee2c5440">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__deadline_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -521,7 +521,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-9e01f1aa">
+<div class="need_container docutils container" id="SNCB-5495d484">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__logic_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -566,7 +566,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-4ce0f27f">
+<div class="need_container docutils container" id="SNCB-fa2f7691">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_sta table" id="comp_arc_sta__health_monitor__static_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -615,7 +615,7 @@
 </section>
 <section id="dynamic-architecture">
 <h2>Dynamic Architecture<a class="headerlink" href="#dynamic-architecture" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-7162d5bd">
+<div class="need_container docutils container" id="SNCB-578ad4d5">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -643,7 +643,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-4f5d6ac0d2d400dbe494d08df6b25f7857dca78f.svg" type="image/svg+xml" style="width:1153px;height:968px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-1c8feb65183d4f7da9016a739454e2237a7475a5.svg" type="image/svg+xml" style="width:1153px;height:968px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -660,7 +660,51 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b7ed6f0f">
+<div class="need_container docutils container" id="SNCB-87c1f1bd">
+<div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__health_lib_thread__dynamic_view">
+<tbody>
+<tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
+<div class="line"><span><span class="needs_title"><span class="needs_data">HealthMonitor background thread</span></span></span></div>
+</div>
+</td>
+<td class="head_center" colspan="2"><div class="needs_head line-block">
+<div class="line"><span><span class="needs_status"><span class="needs_label">status: </span><span class="needs_data">valid</span></span></span></div>
+<div class="line"><span><span class="needs_security"><span class="needs_label">security: </span><span class="needs_data">NO</span></span></span></div>
+<div class="line"><span><span class="needs_safety"><span class="needs_label">safety: </span><span class="needs_data">ASIL_B</span></span></span></div>
+</div>
+</td>
+<td class="head_right" colspan="2"><div class="needs_head_right line-block">
+<div class="line"><span><span class="needs needs_collapse" id="target__show__meta"><span class="needs collapsed"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-down-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></span><span class="needs visible collapse_is_hidden"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right-circle"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg></span></span></span></div>
+</div>
+</td>
+</tr>
+<tr class="meta row-even"><td class="meta" colspan="3"><div class="needs_meta_left line-block">
+<div class="line"><span><span></span></span></div>
+<div class="line"><span><div class="line">fulfils: <span class="fulfils"><span><a class="reference internal" href="../requirements/index.html#comp_req__health_monitor__dummy" title="comp_arc_dyn__health_lib_thread__dynamic_view">comp_req__health_monitor__dummy</a></span></span></div>
+</span></div>
+</div>
+</td>
+<td class="meta" colspan="3"></td>
+</tr>
+<tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
+<object data="../../../_images/plantuml-ea2872c2491aa743c54637fff947186cce21dc4d.svg" type="image/svg+xml" style="width:851px;height:1083px;background:#FFFFFF;"></object></p>
+</td>
+</tr>
+<tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
+<div class="line"><span><span class="needs-id"><a class="reference internal" href="#comp_arc_dyn__health_lib_thread__dynamic_view" title="comp_arc_dyn__health_lib_thread__dynamic_view">comp_arc_dyn__health_lib_thread__dynamic_view</a></span></span></div>
+</div>
+</td>
+<td class="footer" colspan="2"><div class="needs_footer line-block">
+<div class="line"><span><span class="needs_type_name"><span class="needs_data">Component Sequence Diagram</span></span></span></div>
+</div>
+</td>
+<td class="footer_right" colspan="2"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="need_container docutils container" id="SNCB-907d47ea">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__deadline_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -704,7 +748,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-11fec019">
+<div class="need_container docutils container" id="SNCB-9f1d86b1">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__logic_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -731,7 +775,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-91f58e5dce4c57b6e0d2ef541bad250c51256c58.svg" type="image/svg+xml" style="width:870px;height:1536px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-5c569ae604416ab794ecdf6ef63b6aab788125f9.svg" type="image/svg+xml" style="width:870px;height:1536px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -748,7 +792,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-cc4b9a9a">
+<div class="need_container docutils container" id="SNCB-128c9b0d">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_comp_arc_dyn table" id="comp_arc_dyn__heartbeat_monitor__dynamic_view">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -795,7 +839,7 @@
 </section>
 <section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading">#</a></h2>
-<div class="need_container docutils container" id="SNCB-cc5093e0">
+<div class="need_container docutils container" id="SNCB-9bb78a11">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__deadline_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -823,7 +867,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-076bcfd9d68d76a0fc3f9548b55b3d1f2461caab.svg" type="image/svg+xml" style="width:1240px;height:730px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-571502c53b6e44389d6c5eefea89e6081ba8178c.svg" type="image/svg+xml" style="width:1279px;height:382px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -840,7 +884,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-b37167f4">
+<div class="need_container docutils container" id="SNCB-619944fe">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__logic_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -868,7 +912,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-b24115fde59444deec53202cc74226884bbb11f7.svg" type="image/svg+xml" style="width:746px;height:507px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-215a4ffc6745fa95e295bd67ffc2e6504442ca28.svg" type="image/svg+xml" style="width:633px;height:333px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -885,7 +929,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-91b7c69d">
+<div class="need_container docutils container" id="SNCB-2d1adccf">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__heartbeat_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -913,7 +957,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-493272375069850dc19b749aa7056764475828fe.svg" type="image/svg+xml" style="width:438px;height:333px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-a7e9734a33a89d157c09608160341fa1773dee04.svg" type="image/svg+xml" style="width:437px;height:333px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">
@@ -930,7 +974,7 @@
 </table>
 </div>
 </div>
-<div class="need_container docutils container" id="SNCB-a0187c62">
+<div class="need_container docutils container" id="SNCB-e5be49cf">
 <div class="pst-scrollable-table-container"><table class="need needs_grid_complex needs_layout_score needs_style_none needs_type_real_arc_int table" id="real_arc_int__health_monitor__interface">
 <tbody>
 <tr class="head row-odd"><td class="head_left" colspan="2"><div class="needs_head_left line-block">
@@ -959,7 +1003,7 @@
 <td class="meta" colspan="3"></td>
 </tr>
 <tr class="content row-odd"><td class="content" colspan="6"><p class="plantuml">
-<object data="../../../_images/plantuml-42016035039d24535b72736d5e4daeef4eae2dd0.svg" type="image/svg+xml" style="width:1201px;height:589px;background:#FFFFFF;"></object></p>
+<object data="../../../_images/plantuml-c062167bbb2b9ba0e67e5478d86447b9c4e0f60f.svg" type="image/svg+xml" style="width:2245px;height:398px;background:#FFFFFF;"></object></p>
 </td>
 </tr>
 <tr class="footer row-even"><td class="footer_left" colspan="2"><div class="needs_footer_left line-block">

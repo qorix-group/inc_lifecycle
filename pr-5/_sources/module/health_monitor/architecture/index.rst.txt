@@ -101,6 +101,15 @@ Dynamic Architecture
 
    .. uml::  assets/hm_creation.puml
 
+.. comp_arc_dyn:: HealthMonitor background thread
+   :id: comp_arc_dyn__health_lib_thread__dynamic_view
+   :security: NO
+   :safety: ASIL_B
+   :status: valid
+   :fulfils: comp_req__health_monitor__dummy
+
+   .. uml::  assets/hm_background_thread.puml
+
 .. comp_arc_dyn:: DeadlineMonitor Usage
    :id: comp_arc_dyn__deadline_monitor__dynamic_view
    :security: NO
