@@ -140,6 +140,7 @@ cc_library_with_common_opts(
         "@flatbuffers",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
                 "//external/acl",
@@ -165,6 +166,7 @@ cc_library_with_common_opts(
         "//launch_manager:process_state_client",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
                 "//external/acl",
@@ -222,6 +224,7 @@ cc_library_with_common_opts(
         "@flatbuffers//:flatc",
     ] + select(
         {
+            "//config:build_qnx8": [],
             "//config:x86_64-qnx": [],
             "//conditions:default": [
                 "//external/acl",
