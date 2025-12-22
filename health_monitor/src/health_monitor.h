@@ -16,111 +16,11 @@
 #include <chrono>
 
 #include "ffi.h"
-
-// TODO: Add error reporting to the FFI API.
+#include "ffi/common.hpp"
+#include "ffi/deadline_monitor.hpp"
 
 namespace hm
 {
-
-using Status = hm_Status;
-using Error = hm_Error;
-
-struct Deadline
-{
-    Deadline(hm_Deadline *ptr) : ptr(ptr) {}
-
-    Deadline(const Deadline &) = delete;
-    Deadline &operator=(const Deadline &) = delete;
-    Deadline(Deadline &&) = delete;
-    Deadline &operator=(Deadline &&) = delete;
-
-    ~Deadline() { hm_dl_delete(&this->ptr); }
-
-    void start() { hm_dl_start(this->ptr); }
-
-    void stop() { hm_dl_stop(this->ptr); }
-
-    std::chrono::milliseconds min() const
-    {
-        return std::chrono::milliseconds(hm_dl_min_ms(this->ptr));
-    }
-
-    std::chrono::milliseconds max() const
-    {
-        return std::chrono::milliseconds(hm_dl_max_ms(this->ptr));
-    }
-
-    hm_Deadline *ffi_ptr() { return this->ptr; }
-
-    const hm_Deadline *ffi_ptr() const { return this->ptr; }
-
-private:
-    hm_Deadline *ptr;
-};
-
-struct DeadlineMonitor
-{
-    DeadlineMonitor(hm_DeadlineMonitor *ptr) : ptr(ptr) {}
-
-    DeadlineMonitor(const DeadlineMonitor &) = delete;
-    DeadlineMonitor(DeadlineMonitor &&) = delete;
-    DeadlineMonitor &operator=(const DeadlineMonitor &) = delete;
-    DeadlineMonitor &operator=(DeadlineMonitor &&) = delete;
-
-    ~DeadlineMonitor() { hm_dm_delete(&this->ptr); }
-
-    Deadline create_deadline(std::chrono::milliseconds min, std::chrono::milliseconds max)
-    {
-        return Deadline(hm_dm_new_deadline(this->ptr, min.count(), max.count()));
-    }
-
-    void enable() { hm_dm_enable(this->ptr); }
-
-    void disable() { hm_dm_disable(this->ptr); }
-
-    Status status() const { return hm_dm_status(this->ptr); }
-
-    hm_DeadlineMonitor *ffi_ptr() { return this->ptr; }
-
-    const hm_DeadlineMonitor *ffi_ptr() const { return this->ptr; }
-
-private:
-    hm_DeadlineMonitor *ptr;
-};
-
-struct DeadlineMonitorBuilder
-{
-    DeadlineMonitorBuilder() : ptr(hm_dmb_new()) {}
-
-    DeadlineMonitorBuilder(const DeadlineMonitorBuilder &) = delete;
-    DeadlineMonitorBuilder(DeadlineMonitorBuilder &&) = delete;
-    DeadlineMonitorBuilder &operator=(const DeadlineMonitorBuilder &) = delete;
-    DeadlineMonitorBuilder &operator=(DeadlineMonitorBuilder &&) = delete;
-
-    ~DeadlineMonitorBuilder()
-    {
-        if (this->ptr)
-        {
-            hm_dmb_delete(&this->ptr);
-        }
-    }
-
-    // TODO:
-    // add_hook
-
-    DeadlineMonitor build()
-    {
-        assert(this->ptr);  // Ensure that build wasn't already called.
-        return DeadlineMonitor(hm_dmb_build(&this->ptr));
-    }
-
-    hm_DeadlineMonitorBuilder *ffi_ptr() { return this->ptr; }
-
-    const hm_DeadlineMonitorBuilder *ffi_ptr() const { return this->ptr; }
-
-private:
-    hm_DeadlineMonitorBuilder *ptr;
-};
 
 struct LogicMonitorState : hm_LogicMonitorState
 {
@@ -185,9 +85,6 @@ struct LogicMonitorBuilder
 
         return *this;
     }
-
-    // TODO:
-    // add_hook
 
     LogicMonitor build()
     {

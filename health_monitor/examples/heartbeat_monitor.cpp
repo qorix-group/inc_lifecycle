@@ -25,8 +25,9 @@ using namespace std::chrono_literals;
 int main()
 {
     auto heartbeat_monitor = hm_hbm_new(500U);
-    auto deadline_monitor_builder = hm_dmb_new();
-    auto deadline_monitor = hm_dmb_build(&deadline_monitor_builder);
+    auto *deadline_monitor_builder = hm_dmb_new();
+    hm_DeadlineMonitor *deadline_monitor;
+    hm_dmb_build(&deadline_monitor_builder, &deadline_monitor);
 
     auto logic_monitor_builder = hm_lmb_new(hm_lm_state_from_str("Initial"));
     hm_lmb_add_transition(logic_monitor_builder, hm_lm_state_from_str("Initial"),

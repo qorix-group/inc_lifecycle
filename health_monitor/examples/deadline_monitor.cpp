@@ -9,7 +9,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
-#include <ffi.h>
 
 #include <cassert>
 #include <chrono>
@@ -17,20 +16,17 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <ffi/deadline_monitor.hpp>
 
 std::mutex on_status_changed_lock;
-
-void on_status_changed(void *data, hm_Status from, hm_Status to)
-{
-    std::lock_guard guard(on_status_changed_lock);
-    std::cout << __FUNCTION__ << " from: " << (int32_t)from << " to: " << (int32_t)to << std::endl;
-}
 
 int main()
 {
     auto *builder = hm_dmb_new();
-    hm_dmb_add_hook(builder, on_status_changed, nullptr);
-    auto *monitor = hm_dmb_build(&builder);
+
+    hm_DeadlineMonitor *monitor;
+    hm_dmb_build(&builder, &monitor);
+
     assert(builder == nullptr);
     assert(hm_dm_status(monitor) == hm_Status::Running);
 
@@ -53,8 +49,10 @@ int main()
     std::thread t1(
         [&]()
         {
-            auto *deadline1 = hm_dm_new_deadline(monitor, 10, 1000);
-            auto *deadline2 = hm_dm_new_deadline(monitor, 50, 250);
+            hm_Deadline *deadline1;
+            hm_dm_create_custom_deadline(monitor, 10, 1000, &deadline1);
+            hm_Deadline *deadline2;
+            hm_dm_create_custom_deadline(monitor, 50, 250, &deadline2);
 
             // Run task 1.
             hm_dl_start(deadline1);
@@ -88,7 +86,8 @@ int main()
     std::thread t2(
         [&]()
         {
-            auto *deadline = hm_dm_new_deadline(monitor, 0, 100);
+            hm_Deadline *deadline;
+            hm_dm_create_custom_deadline(monitor, 0, 100, &deadline);
 
             // This task is too long.
             hm_dl_start(deadline);

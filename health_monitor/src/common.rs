@@ -9,7 +9,22 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 //
+
+use std::{hash::{DefaultHasher, Hash, Hasher}, time::Duration};
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(C)]
+pub enum Error {
+    _NoError = 0, // Only used by the FFI API.
+    BadParameter,
+    DoesNotExist,
+    NotAllowed,
+    OutOfMemory,
+    Generic,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(C)]
 pub enum Status {
     Running = 0,
     Disabled,
@@ -36,10 +51,46 @@ impl From<u32> for Status {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Error {
-    _NoError = 0, // Only used by the FFI API.
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
+#[repr(C)]
+pub struct Tag {
+    pub(crate) hash: u64,
+}
+
+impl Tag {
+    pub fn from_str<N: AsRef<str> + Hash>(name: N) -> Self {
+        let mut hasher = DefaultHasher::new();
+        name.hash(&mut hasher);
+
+        Self {
+            hash: hasher.finish(),
+        }
+    }
+}
+
+impl From<&str> for Tag {
+    fn from(value: &str) -> Self {
+        Self::from_str(value)
+    }
+}
+
+impl Hash for Tag {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write_u64(self.hash);
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct DurationRange {
+    pub min: Duration,
+    pub max: Duration,
+}
+
+impl DurationRange {
+    pub fn new(min: Duration, max: Duration) -> Self {
+        Self { min, max }
+    }
+
+    pub fn from_millis(min_ms: u64, max_ms: u64) -> Self {
+        Self::new(Duration::from_millis(min_ms), Duration::from_millis(max_ms))
+    }
 }

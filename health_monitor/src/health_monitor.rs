@@ -52,7 +52,7 @@ impl HealthMonitor {
             loop {
                 let start_time = Instant::now();
 
-                if deadline_monitor_clone.step() == common::Status::Failed {
+                if deadline_monitor_clone.evaluate() == common::Status::Failed {
                     status_clone.store(common::Status::Failed.into(), Ordering::Release);
                 }
 

@@ -8,12 +8,16 @@
 // <https://www.apache.org/licenses/LICENSE-2.0>
 //
 // SPDX-License-Identifier: Apache-2.0
-//
-pub mod common;
-pub mod deadline_monitor;
-pub mod logic_monitor;
-pub mod heartbeat_monitor;
-pub mod health_monitor;
 
-mod ffi_old;
-mod ffi;
+use std::ffi::{CStr, c_char};
+use crate::common::Tag;
+
+#[unsafe(no_mangle)]
+extern "C" fn hm_tag_from_str(name: *const c_char) -> Tag {
+    let name = unsafe { CStr::from_ptr(name) };
+
+    match name.to_str() {
+        Ok(name) => Tag::from_str(name),
+        Err(_err) => todo!("Report error"),
+    }
+}

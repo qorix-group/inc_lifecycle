@@ -12,17 +12,8 @@
 use health_monitor::{common::*, deadline_monitor::*};
 use std::{thread, time::Duration};
 
-struct DebugHook;
-
-impl Hook for DebugHook {
-    fn on_status_change(&self, from: Status, to: Status) {
-        println!("Status changed from {:?} to {:?}", from, to);
-    }
-}
-
 fn main() {
-    let mut deadline_monitor_builder = DeadlineMonitorBuilder::new();
-    deadline_monitor_builder.add_hook(Box::new(DebugHook {}));
+    let deadline_monitor_builder = DeadlineMonitorBuilder::new();
     let deadline_monitor = deadline_monitor_builder
         .build()
         .expect("Failed to build the monitor.");
@@ -30,10 +21,10 @@ fn main() {
     let deadline_monitor_clone_1 = deadline_monitor.clone();
     let t_1 = thread::spawn(move || {
         let mut deadline_1 = deadline_monitor_clone_1
-            .create_deadline(Duration::from_millis(10), Duration::from_millis(1000))
+            .create_custom_deadline(DurationRange::from_millis(10, 1000))
             .unwrap();
         let mut deadline_2 = deadline_monitor_clone_1
-            .create_deadline(Duration::from_millis(50), Duration::from_millis(250))
+            .create_custom_deadline(DurationRange::from_millis(50, 250))
             .unwrap();
 
         // Run task 1.
@@ -55,7 +46,7 @@ fn main() {
     let deadline_monitor_clone_2 = deadline_monitor.clone();
     let t_2 = thread::spawn(move || {
         let mut deadline = deadline_monitor_clone_2
-            .create_deadline(Duration::from_millis(10), Duration::from_millis(1000))
+            .create_custom_deadline(DurationRange::from_millis(10, 1000))
             .unwrap();
 
         deadline.start().expect("Failed to start.");
@@ -71,7 +62,7 @@ fn main() {
     let deadline_monitor_clone_3 = deadline_monitor.clone();
     let t_3 = thread::spawn(move || {
         let mut deadline = deadline_monitor_clone_3
-            .create_deadline(Duration::from_millis(0), Duration::from_millis(100))
+            .create_custom_deadline(DurationRange::from_millis(0, 100))
             .unwrap();
 
         // This task is too long.

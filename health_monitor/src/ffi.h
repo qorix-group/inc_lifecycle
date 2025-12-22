@@ -13,53 +13,9 @@
 #define HM_FFI_H
 
 #include <cstdint>
-
 #include "../alive_monitor/include/alive_monitor_ffi.h"
-
-enum class hm_Status : int32_t
-{
-    Running,
-    Disabled,
-    Failed,
-};
-
-enum class hm_Error : int32_t
-{
-    NoError,
-    BadParameter,
-    NotAllowed,
-    OutOfMemory,
-    Generic,
-};
-
-struct hm_DeadlineMonitorBuilder;
-struct hm_DeadlineMonitor;
-struct hm_Deadline;
-
-typedef void hm_DeadlineMonitorOnStatusChanged(void *data, hm_Status from, hm_Status to);
-
-extern "C"
-{
-    hm_DeadlineMonitorBuilder *hm_dmb_new();
-    void hm_dmb_delete(
-        hm_DeadlineMonitorBuilder **builder);  // To be called only if hm_dmb_build wasn't called.
-    void hm_dmb_add_hook(hm_DeadlineMonitorBuilder *builder,
-                         hm_DeadlineMonitorOnStatusChanged on_status_changed,
-                         void *on_status_changed_data);
-    hm_DeadlineMonitor *hm_dmb_build(hm_DeadlineMonitorBuilder **builder);
-
-    void hm_dm_delete(hm_DeadlineMonitor **monitor);
-    hm_Deadline *hm_dm_new_deadline(hm_DeadlineMonitor *monitor, uint64_t min_ms, uint64_t max_ms);
-    void hm_dm_enable(hm_DeadlineMonitor *monitor);
-    void hm_dm_disable(hm_DeadlineMonitor *monitor);
-    hm_Status hm_dm_status(const hm_DeadlineMonitor *monitor);
-
-    void hm_dl_delete(hm_Deadline **deadline);
-    void hm_dl_start(hm_Deadline *deadline);
-    void hm_dl_stop(hm_Deadline *deadline);
-    uint64_t hm_dl_min_ms(const hm_Deadline *deadline);
-    uint64_t hm_dl_max_ms(const hm_Deadline *deadline);
-}
+#include "ffi/common.hpp"
+#include "ffi/deadline_monitor.hpp"
 
 struct hm_LogicMonitorBuilder;
 struct hm_LogicMonitor;
