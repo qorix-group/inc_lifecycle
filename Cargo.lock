@@ -99,8 +99,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
+name = "containers"
+version = "0.1.0"
+source = "git+https://github.com/eclipse-score/baselibs_rust?rev=28380887da328d5c209035eac0609076743105ef#28380887da328d5c209035eac0609076743105ef"
+
+[[package]]
 name = "health_monitoring_lib"
 version = "0.0.1"
+dependencies = [
+ "containers",
+]
 
 [[package]]
 name = "heck"
