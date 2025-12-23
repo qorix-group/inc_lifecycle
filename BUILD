@@ -83,5 +83,6 @@ test_suite(
     name = "unit_tests",
     testonly = True,
     tests = [
+        "//src/health_monitoring_lib:tests",
     ],
 )

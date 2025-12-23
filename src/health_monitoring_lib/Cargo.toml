@@ -7,5 +7,12 @@ edition.workspace = true
 authors.workspace = true
 license-file.workspace = true
 
+[lib]
+name = "health_monitoring_lib"
+crate-type = ["staticlib", "cdylib", "lib"]
+
+[dependencies]
+containers = { git = "https://github.com/eclipse-score/baselibs_rust", subdirectory = "src/containers", rev = "28380887da328d5c209035eac0609076743105ef" }
+
 [lints]
 workspace = true
