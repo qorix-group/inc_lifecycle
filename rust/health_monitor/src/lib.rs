@@ -11,5 +11,6 @@
 
 pub mod common;
 pub mod deadline_monitor;
+pub mod logic_monitor;
 
 mod ffi;

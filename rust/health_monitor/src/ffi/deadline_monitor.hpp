@@ -97,11 +97,25 @@ struct DeadlineMonitor
     DeadlineMonitor(hm_DeadlineMonitor *ptr) : ptr(ptr) {}
 
     DeadlineMonitor(const DeadlineMonitor &) = delete;
-    DeadlineMonitor(DeadlineMonitor &&) = delete;
     DeadlineMonitor &operator=(const DeadlineMonitor &) = delete;
-    DeadlineMonitor &operator=(DeadlineMonitor &&) = delete;
 
-    ~DeadlineMonitor() { hm_dm_delete(&this->ptr); }
+    DeadlineMonitor(DeadlineMonitor &&other) {
+        this->ptr = other.ptr;
+        other.ptr = nullptr;
+    }
+
+    DeadlineMonitor &operator=(DeadlineMonitor &&other) {
+        this->ptr = other.ptr;
+        other.ptr = nullptr;
+
+        return *this;
+    }
+
+    ~DeadlineMonitor() {
+        if (this->ptr) {
+            hm_dm_delete(&this->ptr);
+        }
+    }
 
     std::expected<Deadline, Error> get_deadline(Tag tag)
     {
@@ -170,14 +184,16 @@ struct DeadlineMonitorBuilder
         return *this;
     }
 
-    DeadlineMonitor build()
+    std::expected<DeadlineMonitor, Error> build()
     {
         assert(this->ptr);  // Ensure that build wasn't already called.
 
         hm_DeadlineMonitor *ffi_dm_ptr;
-        hm_dmb_build(&this->ptr, &ffi_dm_ptr);
-
-        return DeadlineMonitor(ffi_dm_ptr);
+        if (auto error = hm_dmb_build(&this->ptr, &ffi_dm_ptr); error == Error::NoError) {
+            return DeadlineMonitor(ffi_dm_ptr);
+        } else {
+            return std::unexpected(error);
+        }
     }
 
     hm_DeadlineMonitorBuilder *ffi_ptr() { return this->ptr; }

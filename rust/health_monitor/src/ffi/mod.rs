@@ -11,3 +11,4 @@
 
 mod common;
 mod deadline_monitor;
+mod logic_monitor;

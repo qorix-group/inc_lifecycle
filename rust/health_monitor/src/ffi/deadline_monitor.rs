@@ -37,16 +37,11 @@ extern "C" fn hm_dmb_add_deadline(builder: *mut DeadlineMonitorBuilder, tag: Tag
 #[unsafe(no_mangle)]
 extern "C" fn hm_dmb_build(builder_ptr: *mut *mut DeadlineMonitorBuilder, out: *mut *mut DeadlineMonitor) -> Error {
     let builder = unsafe { Box::from_raw(*builder_ptr) };
-    unsafe {
-        *builder_ptr = null_mut();
-    }
+    unsafe { *builder_ptr = null_mut(); }
 
     match builder.build() {
         Ok(monitor) => {
-            unsafe {
-                *out = Box::into_raw(Box::new(monitor));
-            }
-
+            unsafe { *out = Box::into_raw(Box::new(monitor)); }
             Error::_NoError
         },
         Err(err) => err
