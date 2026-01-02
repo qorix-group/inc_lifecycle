@@ -11,6 +11,7 @@
 
 SOURCES := $(wildcard *.cpp)
 EXAMPLES := $(addprefix build/,$(basename $(SOURCES)))
+DEPS := $(addprefix build/,$(SOURCES:.cpp=.d))
 
 .PHONY: run
 run: cargo build $(EXAMPLES)
@@ -29,4 +30,6 @@ build:
 	mkdir -p build/
 
 build/%: %.cpp
-	g++ -std=c++23 -Wall -g -O0 $< -l:libhealth_monitor.a -L../../../target/debug/ -I../src/ -o $@
+	g++ -std=c++23 -Wall -g -O0 -MMD $< -l:libhealth_monitor.a -L../../../target/debug/ -I../src/ -o $@
+
+-include $(DEPS)
