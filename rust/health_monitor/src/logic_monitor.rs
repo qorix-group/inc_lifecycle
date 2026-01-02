@@ -12,6 +12,7 @@
 use std::{collections::{HashMap, HashSet}, hash::{DefaultHasher, Hash, Hasher}, sync::{Arc, Mutex}};
 use crate::common::{Status, Error};
 
+/// Represents a program state.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(C)]
 pub struct State {
@@ -19,6 +20,7 @@ pub struct State {
 }
 
 impl State {
+    /// Creates a new state from a name.
     pub fn from_str(name: &str) -> Self {
         let mut hasher = DefaultHasher::new();
         name.hash(&mut hasher);
@@ -41,12 +43,14 @@ impl Hash for State {
     }
 }
 
+/// A LogicMonitorBuilder is used to create a [`LogicMonitor`].
 pub struct LogicMonitorBuilder {
     graph: HashMap<State, HashSet<State>>,
     initial_state: State,
 }
 
 impl LogicMonitorBuilder {
+    /// Creates the builder with an initial [`LogicMonitor`] [`State`].
     pub fn new(initial_state: State) -> Self {
         Self {
             graph: HashMap::new(),
@@ -54,6 +58,7 @@ impl LogicMonitorBuilder {
         }
     }
 
+    /// Adds an allowed [`State`] transition.
     pub fn add_transition(&mut self, from: State, to: State) -> &mut Self {
         // TODO: Can from and to be the same? Can you loop "State" into "State"?
         if let Some(allowed_to_transitions) = self.graph.get_mut(&from) {
@@ -67,6 +72,7 @@ impl LogicMonitorBuilder {
         self
     }
 
+    /// Builds the [`LogicMonitor`].
     pub fn build(self) -> Result<LogicMonitor, Error> {
         let mut all_to_states = HashSet::<State>::new();
         for (_, to_states) in &self.graph {
@@ -91,12 +97,19 @@ impl LogicMonitorBuilder {
     }
 }
 
+
+/// The LogicMonitor is used to validate the order of transitions between program states.
 #[derive(Clone)]
 pub struct LogicMonitor {
     inner: Arc<Inner>,
 }
 
 impl LogicMonitor {
+    /// Transitions the monitor to a new state.
+    ///
+    /// Returns [`Error::NotAllowed`] if the state transition isn't allowed.
+    /// Returns [`Error::Generic`] if the monitor already failed.
+    /// Returns [`Error::NotAllowed`] if the monitor is disabled.
     pub fn transition(&self, to: State) -> Result<(), Error> {
         // Locking the status here to prevent enabling and disabling while transitioning.
         let mut status = self.inner.status.lock().unwrap();
@@ -126,6 +139,9 @@ impl LogicMonitor {
         Err(Error::NotAllowed)
     }
 
+    /// Enables the monitor if it was previosuly disabled via [`LogicMonitor::disable`].
+    ///
+    /// Returns [`Error::NotAllowed`] if not disabled.
     pub fn enable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Disabled {
@@ -136,6 +152,9 @@ impl LogicMonitor {
         }
     }
 
+    /// Disables the monitor if running.
+    ///
+    /// Returns [`Error::NotAllowed`] if not running.
     pub fn disable(&self) -> Result<(), Error> {
         let mut status = self.inner.status.lock().unwrap();
         if *status == Status::Running {
@@ -146,11 +165,13 @@ impl LogicMonitor {
         }
     }
 
+    /// Returns the current [`Status`] of the monitor.
     pub fn status(&self) -> Status {
         let status = self.inner.status.lock().unwrap();
         *status
     }
 
+    /// Returns the current [`State`] of the monitor.
     pub fn state(&self) -> State {
         let state = self.inner.state.lock().unwrap();
         *state

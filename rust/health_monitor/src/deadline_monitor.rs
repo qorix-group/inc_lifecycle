@@ -143,7 +143,7 @@ impl DeadlineMonitor {
         }
     }
 
-    /// Retrieves the current status of the monitor.
+    /// Returns the current status of the monitor.
     pub fn status(&self) -> Status {
         self.inner.status.load(Ordering::Relaxed).into()
     }
