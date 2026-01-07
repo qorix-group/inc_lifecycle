@@ -11,10 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#ifndef PLATFORM_AAS_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
-#define PLATFORM_AAS_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
+#ifndef SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
+#define SCORE_MW_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
 
 #include "src/lifecycle_client_lib/include/application.h"
+#include "src/lifecycle_client_lib/include/lifecyclemanager.h"
 
 #include <memory>
 #include <vector>
@@ -46,8 +47,8 @@ class AasApplicationContainer : public Application
     AasApplicationContainer(const AasApplicationContainer&) = delete;
     AasApplicationContainer& operator=(const AasApplicationContainer&) = delete;
 
-    AasApplicationContainer(AasApplicationContainer&&) = default;
-    AasApplicationContainer& operator=(AasApplicationContainer&&) = default;
+    AasApplicationContainer(AasApplicationContainer&&) = delete;
+    AasApplicationContainer& operator=(AasApplicationContainer&&) = delete;
 
     /**
      * @brief Destructor for AasApplicationContainer.
@@ -67,7 +68,7 @@ class AasApplicationContainer : public Application
     template <typename App, typename... Args>
     AasApplicationContainer& With(Args&&... args)
     {
-        AMP_ASSERT_PRD_MESSAGE(applications_.size() + 1 <= count_expected_applications_,
+        SCORE_LANGUAGE_FUTURECPP_ASSERT_PRD_MESSAGE(applications_.size() + 1 <= count_expected_applications_,
                                "Passed more Applications than expected");
         applications_.push_back(std::make_unique<App>(std::forward<Args>(args)...));
         return *this;
@@ -98,14 +99,15 @@ class AasApplicationContainer : public Application
      * @param token The stop token used for synchronization.
      * @return 0 on success, non-zero value as a result from any failed application.
      */
-    std::int32_t Run(const amp::stop_token& token) override;
+    std::int32_t Run(const score::cpp::stop_token& token) override;
 
   private:
     score::mw::lifecycle::ApplicationContext context_;
     std::vector<std::unique_ptr<Application>> applications_;
     std::size_t count_expected_applications_;
+    LifeCycleManager lifecycle_manager;
 };
 
 }  // namespace score::mw::lifecycle
 
-#endif  // #ifndef PLATFORM_AAS_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H
+#endif  // #ifndef SCORE_MW_LIFECYCLE_AASAPPLICATIONCONTAINER_H

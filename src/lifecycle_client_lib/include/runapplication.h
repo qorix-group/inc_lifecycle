@@ -11,10 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#ifndef PLATFORM_AAS_MW_LIFECYCLE_RUNAPPLICATION_H
-#define PLATFORM_AAS_MW_LIFECYCLE_RUNAPPLICATION_H
+#ifndef SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
+#define SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
 
-#include "platform/aas/lib/memory/string_literal.h"
+#include "src/lifecycle_client_lib/include/lifecyclemanager.h"
+#include "score/memory/string_literal.h"
 #include "src/lifecycle_client_lib/include/applicationcontext.h"
 
 #include <cstdint>
@@ -74,4 +75,5 @@ std::int32_t run_application(const std::int32_t argc, const score::StringLiteral
 }  // namespace mw
 }  // namespace score
 
-#endif  // PLATFORM_AAS_MW_LIFECYCLE_RUNAPPLICATION_H
+#endif  // SCORE_MW_LIFECYCLE_RUNAPPLICATION_H
+

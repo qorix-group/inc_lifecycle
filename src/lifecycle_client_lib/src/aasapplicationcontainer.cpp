@@ -13,7 +13,8 @@
 
 #include "src/lifecycle_client_lib/include/aasapplicationcontainer.h"
 
-#include <amp_jthread.hpp>
+#include <score/jthread.hpp>
+#include "src/lifecycle_client_lib/include/lifecyclemanager.h"
 
 namespace score
 {
@@ -21,6 +22,7 @@ namespace mw
 {
 namespace lifecycle
 {
+
 
 AasApplicationContainer::AasApplicationContainer(const std::int32_t argc,
                                                  const score::StringLiteral* argv,
@@ -35,7 +37,7 @@ AasApplicationContainer::~AasApplicationContainer() noexcept = default;
 std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& context)
 {
     std::vector<std::int32_t> thread_results(applications_.size());
-    std::vector<amp::jthread> threads;
+    std::vector<score::cpp::jthread> threads;
     threads.reserve(applications_.size());
     auto result_iterator = thread_results.begin();
 
@@ -71,7 +73,7 @@ std::int32_t AasApplicationContainer::Initialize(const ApplicationContext& conte
     return 0;
 }
 
-std::int32_t AasApplicationContainer::Run(const amp::stop_token& token)
+std::int32_t AasApplicationContainer::Run(const score::cpp::stop_token& token)
 {
     std::int32_t result = 0;
 
@@ -82,7 +84,7 @@ std::int32_t AasApplicationContainer::Run(const amp::stop_token& token)
         applications_.pop_back();
 
         std::vector<std::int32_t> thread_results(applications_.size(), 0);
-        std::vector<amp::jthread> threads;
+        std::vector<score::cpp::jthread> threads;
         threads.reserve(applications_.size());
         auto result_iterator = thread_results.begin();
         for (auto& application : applications_)
@@ -90,7 +92,7 @@ std::int32_t AasApplicationContainer::Run(const amp::stop_token& token)
             threads.emplace_back(
                 [](decltype(result_iterator) thread_result,
                    std::unique_ptr<Application> app,
-                   const amp::stop_token& stop_token) {
+                   const score::cpp::stop_token& stop_token) {
                     *thread_result = app->Run(stop_token);
                 },
                 result_iterator,

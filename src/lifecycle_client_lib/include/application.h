@@ -11,12 +11,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#ifndef PLATFORM_AAS_MW_LIFECYCLE_APPLICATION_H
-#define PLATFORM_AAS_MW_LIFECYCLE_APPLICATION_H
+#ifndef SCORE_MW_LIFECYCLE_APPLICATION_H
+#define SCORE_MW_LIFECYCLE_APPLICATION_H
 
 #include "src/lifecycle_client_lib/include/applicationcontext.h"
 
-#include "amp_stop_token.hpp"
+#include <score/stop_token.hpp>
 
 #include <cstdint>
 
@@ -69,7 +69,7 @@ class Application
      * \post If non-zero returned, application will exit with exit
      *       code returned from Run
      */
-    virtual std::int32_t Run(const amp::stop_token&) = 0;
+    virtual std::int32_t Run(const score::cpp::stop_token&) = 0;
 
     Application() noexcept = default;
     virtual ~Application() noexcept = default;
@@ -86,4 +86,4 @@ class Application
 }  // namespace mw
 }  // namespace score
 
-#endif  // PLATFORM_AAS_MW_LIFECYCLE_APPLICATION_H
+#endif  // SCORE_MW_LIFECYCLE_APPLICATION_H

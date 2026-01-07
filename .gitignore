@@ -7,3 +7,6 @@ __pycache__/
 target/
 MODULE.lock.bazel
 _build/
+.clwb
+.idea
+external

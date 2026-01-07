@@ -11,15 +11,15 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#ifndef PLATFORM_AAS_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
-#define PLATFORM_AAS_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
+#ifndef SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
+#define SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
 
 #include "src/lifecycle_client_lib/include/application.h"
 #include "src/lifecycle_client_lib/include/applicationcontext.h"
 
-#include "platform/aas/lib/os/utils/signal_impl.h"
+#include "score/os/utils/signal_impl.h"
 
-#include "amp_stop_token.hpp"
+#include <score/stop_token.hpp>
 
 #include <cstdint>
 #include <thread>
@@ -43,7 +43,7 @@ class LifeCycleManager
     /**
      * \brief stop_source object used as sync and cancel mechanism for application
      */
-    amp::stop_source m_stop_source;
+    score::cpp::stop_source m_stop_source;
 
     /**
      * \brief Runnable application
@@ -112,4 +112,4 @@ class LifeCycleManager
 }  // namespace mw
 }  // namespace score
 
-#endif  // PLATFORM_AAS_MW_LIFECYCLE_LIFECYCLEMANAGER_H_
+#endif  // SCORE_MW_LIFECYCLE_LIFECYCLEMANAGER_H_

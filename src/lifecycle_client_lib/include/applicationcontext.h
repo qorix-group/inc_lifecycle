@@ -11,12 +11,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
 
-#ifndef PLATFORM_AAS_MW_LIFECYCLE_APPLICATIONCONTEXT_H
-#define PLATFORM_AAS_MW_LIFECYCLE_APPLICATIONCONTEXT_H
+#ifndef SCORE_MW_LIFECYCLE_APPLICATIONCONTEXT_H
+#define SCORE_MW_LIFECYCLE_APPLICATIONCONTEXT_H
 
-#include "amp_string_view.hpp"
-#include "platform/aas/lib/memory/string_literal.h"
-
+#include "score/memory/string_literal.h"
+#include <string_view>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -52,11 +51,11 @@ class ApplicationContext
      *
      * \return string argument if it exists, otherwise empty string.
      */
-    std::string get_argument(const amp::string_view flag) const noexcept;
+    std::string get_argument(const std::string_view flag) const noexcept;
 };
 
 }  // namespace lifecycle
 }  // namespace mw
 }  // namespace score
 
-#endif  // PLATFORM_AAS_MW_LIFECYCLE_APPLICATIONCONTEXT_H
+#endif  // PSCORE_MW_LIFECYCLE_APPLICATIONCONTEXT_H

@@ -29,7 +29,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
     ],
 )
 
@@ -52,7 +52,7 @@ cc_binary(
     }),
     visibility = ["//visibility:public"],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:control_client",
         "//launch_manager:lifecycle_client",
     ],

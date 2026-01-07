@@ -13,12 +13,13 @@
 
 #include "src/lifecycle_client_lib/include/lifecyclemanager.h"
 
-#include "platform/aas/lib/os/errno.h"
-#include "platform/aas/lib/os/stdlib.h"
+#include "score/os/errno.h"
+#include <cstdlib>
 
-#include "platform/aas/mw/log/logging.h"
+#include "score/mw/log/logging.h"
+#include "score/os/stdlib_impl.h"
 
-#include <amp_utility.hpp>
+#include <score/utility.hpp>
 #include <thread>
 
 namespace
@@ -137,7 +138,7 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
     if ((m_app != nullptr) && (sigwait_status.has_value() == true))
     {
         mw::log::LogInfo() << "Signal SIGTERM received, requesting to stop the app";
-        amp::ignore = m_stop_source.request_stop();
+        score::cpp::ignore = m_stop_source.request_stop();
         report_shutdown();
     }
     else
@@ -154,10 +155,10 @@ void score::mw::lifecycle::LifeCycleManager::handle_signal()
 
         mw::log::LogError() << "Application will exit with status EXIT_FAILURE!";
         /* quick_exit() is used instead of exit() to avoid undefined behavior when trying to finish execution even if it
-         * is still possible that initialization is ongoing and using global resources i.e. logging.
-        /* KW_SUPPRESS_START:MISRA.STDLIB.ABORT,MISRA.USE.EXPANSION: */
-        /* (1) Exit call tolerated as we need to return an exit code. (2) Macro tolerated as failure value is
-         * implementation defined. */
+          is still possible that initialization is ongoing and using global resources i.e. logging.
+         KW_SUPPRESS_START:MISRA.STDLIB.ABORT,MISRA.USE.EXPANSION: 
+         (1) Exit call tolerated as we need to return an exit code. (2) Macro tolerated as failure value is
+         implementation defined. */
         score::os::Stdlib::instance().quick_exit(EXIT_FAILURE);
         /* KW_SUPPRESS_END:MISRA.STDLIB.ABORT,MISRA.USE.EXPANSION */
     }

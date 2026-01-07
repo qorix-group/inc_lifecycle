@@ -53,7 +53,7 @@ cc_library_with_common_opts(
 cc_library_with_common_opts(
     name = "ipc_if",
     hdrs = glob(["source/score/lcm/saf/ipc/*.hpp"]),
-    deps = ["//external/ipc_dropin"],
+    deps = ["//externals/ipc_dropin"],
     alwayslink = True,
 )
 
@@ -135,14 +135,14 @@ cc_library_with_common_opts(
     ],
     deps = [
         ":recoverynotify",
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:process_state_client",
         "@flatbuffers",
     ] + select(
         {
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -161,13 +161,13 @@ cc_library_with_common_opts(
         "source/score/lcm/saf/logging",
     ],
     deps = [
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:process_state_client",
     ] + select(
         {
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -224,7 +224,7 @@ cc_library_with_common_opts(
         {
             "//config:x86_64-qnx": [],
             "//conditions:default": [
-                "//external/acl",
+                "//externals/acl",
             ],
         },
     ),
@@ -248,7 +248,7 @@ cc_library_with_common_opts(
     deps = [
         ":factory",
         ":rb-watchdog-if",
-        "//external/ipc_dropin",
+        "//externals/ipc_dropin",
         "//launch_manager:lifecycle_client",
     ],
 )
