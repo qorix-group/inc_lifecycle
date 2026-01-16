@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-
+mod log;
 mod common;
 mod log;
 mod protected_memory;
