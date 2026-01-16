@@ -12,9 +12,9 @@
 //
 
 mod common;
-mod log;
-mod protected_memory;
+mod deadline_monitor;
+mod deadline_state;
 
-pub mod deadline;
-
-pub use common::{IdentTag, TimeRange};
+pub use deadline_monitor::{
+    DeadlineErrors, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
+};
