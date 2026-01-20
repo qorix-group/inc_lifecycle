@@ -33,3 +33,18 @@ rust_test(
         "@score_baselibs_rust//src/log/stdout_logger",
     ],
 )
+
+cc_library(
+    name = "health_monitoring_lib_cc",
+    srcs = ["cpp/deadline/deadline_monitor.cpp"],
+    hdrs = [
+        "cpp/include/score/hm/deadline/deadline_monitor.h",
+        "cpp/include/score/hm/common.h"
+    
+    ],
+    visibility = ["//visibility:public"],
+    strip_include_prefix = "cpp/include",
+    deps = [
+        ":health_monitoring_lib",
+    ],
+)
