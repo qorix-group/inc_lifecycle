@@ -61,13 +61,17 @@ impl DeadlineMonitorBuilder {
 
     /// Adds a deadline with the given tag and duration range to the monitor.
     pub fn add_deadline(mut self, tag: &IdentTag, range: TimeRange) -> Self {
-        self.deadlines.insert(*tag, range);
+        self._add_deadline_internal(tag, range);
         self
     }
 
     /// Builds the DeadlineMonitor with the configured deadlines.
     pub(crate) fn build(self, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
         DeadlineMonitor::new(self.deadlines)
+    }
+
+    pub(crate) fn _add_deadline_internal(&mut self, tag: &IdentTag, range: TimeRange) {
+        self.deadlines.insert(*tag, range);
     }
 }
 
@@ -167,6 +171,10 @@ impl Deadline {
     ///  - Err(DeadlineError::DeadlineAlreadyFailed) - if the deadline was already missed before
     ///
     pub fn start(&mut self) -> Result<DeadlineHandle<'_>, DeadlineError> {
+        self.start_internal().map(|_| DeadlineHandle(self))
+    }
+
+    pub(crate) fn start_internal(&mut self) -> Result<(), DeadlineError> {
         let now = self.monitor.now();
         let max_time = now + self.range.max.as_millis() as u32;
 
@@ -187,11 +195,11 @@ impl Deadline {
             warn!("Trying to start deadline {:?} that already failed", self.tag);
             Err(DeadlineError::DeadlineAlreadyFailed)
         } else {
-            Ok(DeadlineHandle(self))
+            Ok(())
         }
     }
 
-    fn stop_internal(&mut self) {
+    pub(crate) fn stop_internal(&mut self) {
         let now = self.monitor.now();
         let max = self.range.max.as_millis() as u32;
         let min = self.range.min.as_millis() as u32;

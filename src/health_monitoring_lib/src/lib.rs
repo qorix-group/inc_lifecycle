@@ -12,7 +12,6 @@
 // *******************************************************************************
 mod log;
 mod common;
-mod log;
 mod protected_memory;
 
 pub mod deadline;
