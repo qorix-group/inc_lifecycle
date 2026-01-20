@@ -66,7 +66,7 @@ impl DeadlineMonitorBuilder {
     }
 
     /// Builds the DeadlineMonitor with the configured deadlines.
-    fn build(self, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
+    pub(crate) fn build(self, _allocator: &ProtectedMemoryAllocator) -> DeadlineMonitor {
         DeadlineMonitor::new(self.deadlines)
     }
 }
