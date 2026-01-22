@@ -10,8 +10,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
-mod log;
 mod common;
+mod log;
 mod protected_memory;
 
 pub mod deadline;
@@ -20,6 +20,7 @@ use std::collections::HashMap;
 
 pub use common::{IdentTag, TimeRange};
 
+#[derive(Default)]
 pub struct HealthMonitorBuilder {
     deadlines: HashMap<IdentTag, deadline::DeadlineMonitorBuilder>,
 }
@@ -56,3 +57,5 @@ impl HealthMonitor {
         self.deadline_monitors.remove(tag)
     }
 }
+
+mod ffi;

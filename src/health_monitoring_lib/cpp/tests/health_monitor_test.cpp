@@ -11,6 +11,7 @@ class HealthMonitorTest : public ::testing::Test
 {
 };
 
+// For first review round, only single test case to show up API
 TEST_F(HealthMonitorTest, TestName)
 {
     ::testing::GTEST_FLAG(catch_exceptions) = false;

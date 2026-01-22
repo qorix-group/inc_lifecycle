@@ -19,4 +19,5 @@ pub use deadline_monitor::{
     DeadlineError, DeadlineHandle, DeadlineMonitor, DeadlineMonitorBuilder, DeadlineMonitorError,
 };
 
-mod ffi;
+// FFI bindings
+pub(super) mod ffi;

@@ -17,7 +17,8 @@ enum class Error
     NotFound = kSuccess + 1,
     AlreadyExists = kSuccess + 2,
     InvalidArgument = kSuccess + 3,
-    WrongState = kSuccess + 4
+    WrongState = kSuccess + 4,
+    Failed = kSuccess + 5
 };
 
 ///
