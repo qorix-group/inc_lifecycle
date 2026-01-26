@@ -11,9 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_static_library", "rust_test")
 load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
-load("@rules_cc//cc:defs.bzl", "cc_library")
 
 rust_library(
     name = "health_monitoring_lib",
@@ -55,7 +55,6 @@ cc_library(
         "cpp/common.cpp",
         "cpp/deadline_monitor.cpp",
         "cpp/health_monitor.cpp",
-        "cpp/ffi_helpers.h"
     ],
     hdrs = [
         "cpp/include/score/hm/common.h",
