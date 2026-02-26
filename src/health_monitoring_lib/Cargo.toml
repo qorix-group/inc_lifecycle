@@ -22,6 +22,9 @@ monitor_rs = { workspace = true, optional = true }
 [dev-dependencies]
 stdout_logger.workspace = true
 
+[target.'cfg(loom)'.dependencies]
+loom = { version = "0.7", features = ["checkpoint"] }
+
 [features]
 default = ["stub_supervisor_api_client"]
 stub_supervisor_api_client = []
