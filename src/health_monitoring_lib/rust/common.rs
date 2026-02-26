@@ -14,6 +14,7 @@
 use crate::deadline::DeadlineEvaluationError;
 use crate::heartbeat::HeartbeatEvaluationError;
 use crate::log::ScoreDebug;
+use crate::logic::LogicEvaluationError;
 use crate::tag::MonitorTag;
 use core::hash::Hash;
 use core::time::Duration;
@@ -51,7 +52,7 @@ pub(crate) trait HasEvalHandle {
 pub(crate) enum MonitorEvaluationError {
     Deadline(DeadlineEvaluationError),
     Heartbeat(HeartbeatEvaluationError),
-    Logic,
+    Logic(LogicEvaluationError),
 }
 
 impl From<DeadlineEvaluationError> for MonitorEvaluationError {
@@ -63,6 +64,12 @@ impl From<DeadlineEvaluationError> for MonitorEvaluationError {
 impl From<HeartbeatEvaluationError> for MonitorEvaluationError {
     fn from(value: HeartbeatEvaluationError) -> Self {
         MonitorEvaluationError::Heartbeat(value)
+    }
+}
+
+impl From<LogicEvaluationError> for MonitorEvaluationError {
+    fn from(value: LogicEvaluationError) -> Self {
+        MonitorEvaluationError::Logic(value)
     }
 }
 
