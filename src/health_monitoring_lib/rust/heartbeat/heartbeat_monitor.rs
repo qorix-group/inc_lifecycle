@@ -14,11 +14,11 @@
 use crate::common::{
     duration_to_int, hmon_time_offset, Monitor, MonitorEvalHandle, MonitorEvaluationError, MonitorEvaluator, TimeRange,
 };
+use crate::health_monitor::HealthMonitorError;
 use crate::heartbeat::heartbeat_state::{HeartbeatState, HeartbeatStateSnapshot};
 use crate::log::{error, warn};
 use crate::protected_memory::ProtectedMemoryAllocator;
 use crate::tag::MonitorTag;
-use crate::HealthMonitorError;
 use core::sync::atomic::{AtomicU64, Ordering};
 use core::time::Duration;
 use score_log::ScoreDebug;
@@ -264,7 +264,7 @@ impl HeartbeatMonitorInner {
 
 #[cfg(test)]
 mod test_common {
-    use crate::TimeRange;
+    use crate::common::TimeRange;
     use core::time::Duration;
     use std::thread::sleep;
     use std::time::Instant;
@@ -286,11 +286,11 @@ mod test_common {
 #[cfg(all(test, not(loom)))]
 mod tests {
     use crate::common::{Monitor, MonitorEvaluationError, MonitorEvaluator, TimeRange};
+    use crate::health_monitor::HealthMonitorError;
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::tag::MonitorTag;
-    use crate::HealthMonitorError;
     use core::sync::atomic::{AtomicBool, Ordering};
     use core::time::Duration;
     use std::sync::Arc;
@@ -651,12 +651,11 @@ mod tests {
 
 #[cfg(all(test, loom))]
 mod loom_tests {
-    use crate::common::{Monitor, MonitorEvaluator};
+    use crate::common::{Monitor, MonitorEvaluator, TimeRange};
     use crate::heartbeat::heartbeat_monitor::test_common::{range_from_ms, sleep_until, TAG};
     use crate::heartbeat::{HeartbeatEvaluationError, HeartbeatMonitor, HeartbeatMonitorBuilder};
     use crate::protected_memory::ProtectedMemoryAllocator;
     use crate::tag::MonitorTag;
-    use crate::TimeRange;
     use core::time::Duration;
     use loom::thread::spawn;
     use std::sync::Arc;

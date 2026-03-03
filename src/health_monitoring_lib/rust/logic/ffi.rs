@@ -182,8 +182,7 @@ mod tests {
         logic_monitor_builder_add_state, logic_monitor_builder_add_transition, logic_monitor_builder_create,
         logic_monitor_builder_destroy, logic_monitor_destroy, logic_monitor_state, logic_monitor_transition,
     };
-    use crate::tag::StateTag;
-    use crate::MonitorTag;
+    use crate::tag::{MonitorTag, StateTag};
     use core::ptr::null_mut;
 
     #[test]

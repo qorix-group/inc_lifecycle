@@ -10,9 +10,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 // *******************************************************************************
+use crate::common::TimeRange;
 use crate::ffi::{FFIBorrowed, FFICode, FFIHandle};
 use crate::heartbeat::{HeartbeatMonitor, HeartbeatMonitorBuilder};
-use crate::TimeRange;
 use core::time::Duration;
 
 #[no_mangle]
