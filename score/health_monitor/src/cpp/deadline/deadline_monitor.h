@@ -83,6 +83,8 @@ class DeadlineMonitor final
 
     // Allow only HealthMonitor to create DeadlineMonitor instances.
     friend class score::mw::health::HealthMonitor;
+
+    friend class internal::ConstructibleFrom<DeadlineMonitor>;
     internal::DroppableFFIHandle monitor_handle_;
 };
 
