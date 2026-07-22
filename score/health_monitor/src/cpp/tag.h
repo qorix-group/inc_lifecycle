@@ -43,6 +43,13 @@ class Tag
         return !(*this == other);
     }
 
+    bool operator<(const T& other) const noexcept
+    {
+        std::string_view this_sv{data_, length_};
+        std::string_view other_sv{other.data_, other.length_};
+        return this_sv < other_sv;
+    }
+
   private:
     /// SAFETY: This has to be FFI compatible with the Rust side representation.
     const char* data_;
