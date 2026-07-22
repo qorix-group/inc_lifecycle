@@ -95,6 +95,8 @@ class HealthMonitor final
     // Allow only the builder to create HealthMonitor instances.
     friend class HealthMonitorBuilder;
 
+    friend class internal::ConstructibleFrom<HealthMonitor>;
+
     HealthMonitor(internal::FFIHandle handle);
 
     internal::FFIHandle health_monitor_;

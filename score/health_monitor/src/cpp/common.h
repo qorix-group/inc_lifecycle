@@ -16,6 +16,7 @@
 #include <score/assert.hpp>
 #include <chrono>
 #include <optional>
+#include <utility>
 
 namespace score::mw::health
 {
@@ -73,6 +74,17 @@ class DroppableFFIHandle
   private:
     FFIHandle handle_;
     DropFn drop_fn_;
+};
+
+template <typename T>
+class ConstructibleFrom
+{
+  public:
+    template <typename... Args>
+    static T create(Args&&... args)
+    {
+        return T(std::forward<Args>(args)...);
+    }
 };
 
 }  // namespace internal
