@@ -14,6 +14,8 @@
 #define SCORE_HM_TESTS_MOCKS_MOCK_HEARTBEAT_MONITOR_H
 
 #include "score/mw/health/common.h"
+#include "score/mw/health/heartbeat_monitor.h"
+#include "testing_factory.h"
 #include <gmock/gmock.h>
 
 namespace score::mw::health::heartbeat::testing_support
@@ -22,7 +24,13 @@ namespace score::mw::health::heartbeat::testing_support
 class MockHeartbeatMonitor
 {
   public:
-    MOCK_METHOD(void, Heartbeat, ());
+    MOCK_METHOD(void, heartbeat, ());
+
+    /// Real production `HeartbeatMonitor` whose FFIHandle is this mock's own address.
+    HeartbeatMonitor as_heartbeat_monitor()
+    {
+        return internal::ConstructibleFrom<HeartbeatMonitor>::create(reinterpret_cast<internal::FFIHandle>(this));
+    }
 };
 
 }  // namespace score::mw::health::heartbeat::testing_support

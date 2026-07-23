@@ -16,7 +16,6 @@
 #include <score/assert.hpp>
 #include <chrono>
 #include <optional>
-#include <utility>
 
 namespace score::mw::health
 {
@@ -76,16 +75,10 @@ class DroppableFFIHandle
     DropFn drop_fn_;
 };
 
+/// Test-only factory that constructs a production type through its private constructor.
+/// Forward-declared so production types can befriend it without pulling test machinery into the production headers.
 template <typename T>
-class ConstructibleFrom
-{
-  public:
-    template <typename... Args>
-    static T create(Args&&... args)
-    {
-        return T(std::forward<Args>(args)...);
-    }
-};
+class ConstructibleFrom;
 
 }  // namespace internal
 

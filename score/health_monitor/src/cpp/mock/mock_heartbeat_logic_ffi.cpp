@@ -15,10 +15,11 @@
 #include <cstdint>
 
 using score::mw::health::StateTag;
+using score::mw::health::heartbeat::testing_support::MockHeartbeatMonitor;
 using score::mw::health::internal::FFICode;
 using score::mw::health::internal::FFIHandle;
 using score::mw::health::internal::kSuccess;
-using score::mw::health::heartbeat::testing_support::MockHeartbeatMonitor;
+using score::mw::health::internal::non_null_handle_sentinel;
 using score::mw::health::logic::testing_support::MockLogicMonitor;
 
 // Mock C FFI surface consumed by heartbeat_monitor.cpp/logic_monitor.cpp, replacing the real
@@ -27,61 +28,71 @@ using score::mw::health::logic::testing_support::MockLogicMonitor;
 // unused: HealthMonitorBuilder::add_heartbeat_monitor/add_logic_monitor() discard it once the
 // tag is registered on the owning MockHealthMonitor (see mock_health_monitor_ffi.cpp). The leaf
 // functions route to the mock via its own address, which is the FFIHandle handed out at
-// `health_monitor_get_heartbeat_monitor`/`health_monitor_get_logic_monitor`.
+// `health_monitor_get_heartbeat_monitor`/`health_monitor_get_logic_monitor` or by the standalone
+// `MockHeartbeatMonitor::as_heartbeat_monitor()`/`MockLogicMonitor::as_logic_monitor()`.
 extern "C" {
 
-FFICode heartbeat_monitor_builder_create(uint32_t, uint32_t, FFIHandle* handle_out)
+FFICode heartbeat_monitor_builder_create(
+    [[maybe_unused]] uint32_t range_min_ms,
+    [[maybe_unused]] uint32_t range_max_ms,
+    FFIHandle* heartbeat_monitor_builder_handle_out)
 {
-    *handle_out = reinterpret_cast<FFIHandle>(1);
+    *heartbeat_monitor_builder_handle_out = non_null_handle_sentinel();
     return static_cast<FFICode>(kSuccess);
 }
 
-FFICode heartbeat_monitor_builder_destroy(FFIHandle)
-{
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode heartbeat_monitor_destroy(FFIHandle)
-{
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode heartbeat_monitor_heartbeat(FFIHandle handle)
-{
-    reinterpret_cast<MockHeartbeatMonitor*>(handle)->Heartbeat();
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode logic_monitor_builder_create(const StateTag*, FFIHandle* handle_out)
-{
-    *handle_out = reinterpret_cast<FFIHandle>(1);
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode logic_monitor_builder_destroy(FFIHandle)
+FFICode heartbeat_monitor_builder_destroy([[maybe_unused]] FFIHandle heartbeat_monitor_builder_handle)
 {
     return static_cast<FFICode>(kSuccess);
 }
 
-FFICode logic_monitor_builder_add_state(FFIHandle, const StateTag*, const StateTag*, size_t)
+FFICode heartbeat_monitor_destroy([[maybe_unused]] FFIHandle heartbeat_monitor_handle)
 {
     return static_cast<FFICode>(kSuccess);
 }
 
-FFICode logic_monitor_destroy(FFIHandle)
+FFICode heartbeat_monitor_heartbeat(FFIHandle heartbeat_monitor_handle)
+{
+    reinterpret_cast<MockHeartbeatMonitor*>(heartbeat_monitor_handle)->heartbeat();
+    return static_cast<FFICode>(kSuccess);
+}
+
+FFICode logic_monitor_builder_create(
+    [[maybe_unused]] const StateTag* initial_state,
+    FFIHandle* logic_monitor_builder_handle_out)
+{
+    *logic_monitor_builder_handle_out = non_null_handle_sentinel();
+    return static_cast<FFICode>(kSuccess);
+}
+
+FFICode logic_monitor_builder_destroy([[maybe_unused]] FFIHandle logic_monitor_builder_handle)
 {
     return static_cast<FFICode>(kSuccess);
 }
 
-FFICode logic_monitor_transition(FFIHandle handle, const StateTag* target_state)
+FFICode logic_monitor_builder_add_state(
+    [[maybe_unused]] FFIHandle logic_monitor_builder_handle,
+    [[maybe_unused]] const StateTag* state,
+    [[maybe_unused]] const StateTag* allowed_states,
+    [[maybe_unused]] size_t num_allowed_states)
 {
-    auto result{reinterpret_cast<MockLogicMonitor*>(handle)->Transition(*target_state)};
+    return static_cast<FFICode>(kSuccess);
+}
+
+FFICode logic_monitor_destroy([[maybe_unused]] FFIHandle logic_monitor_handle)
+{
+    return static_cast<FFICode>(kSuccess);
+}
+
+FFICode logic_monitor_transition(FFIHandle logic_monitor_handle, const StateTag* target_state)
+{
+    auto result{reinterpret_cast<MockLogicMonitor*>(logic_monitor_handle)->transition(*target_state)};
     return result.has_value() ? static_cast<FFICode>(kSuccess) : static_cast<FFICode>(result.error());
 }
 
-FFICode logic_monitor_state(FFIHandle handle, StateTag* state_out)
+FFICode logic_monitor_state(FFIHandle logic_monitor_handle, StateTag* state_out)
 {
-    auto result{reinterpret_cast<MockLogicMonitor*>(handle)->State()};
+    auto result{reinterpret_cast<MockLogicMonitor*>(logic_monitor_handle)->state()};
     if (!result.has_value())
     {
         return static_cast<FFICode>(result.error());

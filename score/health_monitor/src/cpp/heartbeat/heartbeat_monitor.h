@@ -13,8 +13,8 @@
 #ifndef SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H
 #define SCORE_HM_HEARTBEAT_HEARTBEAT_MONITOR_H
 
-#include <score/expected.hpp>
 #include "score/mw/health/common.h"
+#include <score/expected.hpp>
 
 namespace score::mw::health
 {
@@ -76,6 +76,9 @@ class HeartbeatMonitor final
 
     // Only `HealthMonitor` is allowed to create `HeartbeatMonitor` instances.
     friend class score::mw::health::HealthMonitor;
+
+    // Allow test code to construct a monitor pinned to a mock FFI handle.
+    friend class internal::ConstructibleFrom<HeartbeatMonitor>;
     internal::DroppableFFIHandle monitor_handle_;
 };
 

@@ -22,9 +22,9 @@ namespace score::mw::health::deadline::testing_support
 class MockDeadline
 {
   public:
-    MOCK_METHOD(internal::FFICode, Start, ());
-    MOCK_METHOD(internal::FFICode, Stop, ());
-    MOCK_METHOD(internal::FFICode, Destroy, ());
+    MOCK_METHOD(internal::FFICode, start, ());
+    MOCK_METHOD(internal::FFICode, stop, ());
+    MOCK_METHOD(internal::FFICode, destroy, ());
 };
 
 }  // namespace score::mw::health::deadline::testing_support

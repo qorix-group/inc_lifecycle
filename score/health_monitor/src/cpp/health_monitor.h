@@ -42,12 +42,14 @@ class HealthMonitorBuilder final
     HealthMonitorBuilder& operator=(HealthMonitorBuilder&&) = delete;
 
     /// Adds a deadline monitor to the builder to construct DeadlineMonitor instances during HealthMonitor build.
-    HealthMonitorBuilder add_deadline_monitor(const MonitorTag& monitor_tag,
-                                              deadline::DeadlineMonitorBuilder&& monitor) &&;
+    HealthMonitorBuilder add_deadline_monitor(
+        const MonitorTag& monitor_tag,
+        deadline::DeadlineMonitorBuilder&& monitor) &&;
 
     /// Adds a heartbeat monitor for a specific identifier tag.
-    HealthMonitorBuilder add_heartbeat_monitor(const MonitorTag& monitor_tag,
-                                               heartbeat::HeartbeatMonitorBuilder&& monitor) &&;
+    HealthMonitorBuilder add_heartbeat_monitor(
+        const MonitorTag& monitor_tag,
+        heartbeat::HeartbeatMonitorBuilder&& monitor) &&;
 
     /// Adds a logic monitor for a specific identifier tag.
     HealthMonitorBuilder add_logic_monitor(const MonitorTag& monitor_tag, logic::LogicMonitorBuilder&& monitor) &&;
@@ -67,6 +69,11 @@ class HealthMonitorBuilder final
     score::cpp::expected<HealthMonitor, Error> build() &&;
 
   private:
+    explicit HealthMonitorBuilder(internal::FFIHandle handle);
+
+    // Allow test code to construct a builder pinned to a mock FFI handle.
+    friend class internal::ConstructibleFrom<HealthMonitorBuilder>;
+
     internal::DroppableFFIHandle health_monitor_builder_handle_;
 
     std::optional<uint64_t> supervisor_api_cycle_ms_;
@@ -92,12 +99,13 @@ class HealthMonitor final
     void start();
 
   private:
+    explicit HealthMonitor(internal::FFIHandle handle);
+
     // Allow only the builder to create HealthMonitor instances.
     friend class HealthMonitorBuilder;
 
+    // Allow test code to construct a monitor pinned to a mock FFI handle.
     friend class internal::ConstructibleFrom<HealthMonitor>;
-
-    HealthMonitor(internal::FFIHandle handle);
 
     internal::FFIHandle health_monitor_;
 };

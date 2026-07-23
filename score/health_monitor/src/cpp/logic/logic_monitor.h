@@ -83,6 +83,9 @@ class LogicMonitor final
 
     // Only `HealthMonitor` is allowed to create `LogicMonitor` instances.
     friend class score::mw::health::HealthMonitor;
+
+    // Allow test code to construct a monitor pinned to a mock FFI handle.
+    friend class internal::ConstructibleFrom<LogicMonitor>;
     internal::DroppableFFIHandle monitor_handle_;
 };
 

@@ -87,28 +87,6 @@ cc_gtest_unit_test(
 )
 
 cc_gtest_unit_test(
-    name = "mock_health_monitor_poc_test",
-    srcs = [
-        "tests/mock_health_monitor_poc_test.cpp",
-    ],
-    deps = [
-        "//score/health_monitor/src/cpp:health_monitor",
-        "//score/health_monitor/src/cpp/tests/mocks:mock_health_monitor",
-    ],
-)
-
-cc_gtest_unit_test(
-    name = "example_component_test",
-    srcs = [
-        "tests/example_component_test.cpp",
-    ],
-    deps = [
-        "//score/health_monitor/src/cpp:health_monitor",
-        "//score/health_monitor/src/cpp/tests/mocks:mock_health_monitor",
-    ],
-)
-
-cc_gtest_unit_test(
     name = "cpp_integration_tests",
     srcs = [
         "tests/integrated_test.cpp",
