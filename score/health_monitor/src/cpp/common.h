@@ -75,8 +75,6 @@ class DroppableFFIHandle
     DropFn drop_fn_;
 };
 
-/// Test-only factory that constructs a production type through its private constructor.
-/// Forward-declared so production types can befriend it without pulling test machinery into the production headers.
 template <typename T>
 class ConstructibleFrom;
 

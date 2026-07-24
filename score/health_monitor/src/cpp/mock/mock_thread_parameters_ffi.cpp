@@ -41,7 +41,7 @@ FFICode scheduler_policy_priority_max([[maybe_unused]] SchedulerPolicy scheduler
 FFICode thread_parameters_create(FFIHandle* thread_parameters_handle_out)
 {
     // Non-null: DroppableFFIHandle treats a nullptr handle as "already dropped" (see
-    // mock_deadline_ffi.cpp's deadline_monitor_builder_create for the full explanation).
+    // mock_deadline_monitor_ffi.cpp's deadline_monitor_builder_create for the full explanation).
     *thread_parameters_handle_out = non_null_handle_sentinel();
     return static_cast<FFICode>(kSuccess);
 }

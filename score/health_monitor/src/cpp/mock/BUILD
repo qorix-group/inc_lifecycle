@@ -17,10 +17,11 @@ load("@score_baselibs//:bazel/unit_tests.bzl", "cc_gtest_unit_test")
 cc_library(
     name = "mock",
     srcs = [
-        "mock_deadline_ffi.cpp",
+        "mock_deadline_monitor_ffi.cpp",
         "mock_health_monitor_ffi.cpp",
-        "mock_heartbeat_logic_ffi.cpp",
-        "mock_thread_ffi.cpp",
+        "mock_heartbeat_monitor_ffi.cpp",
+        "mock_logic_monitor_ffi.cpp",
+        "mock_thread_parameters_ffi.cpp",
     ],
     hdrs = [
         "mock_deadline.h",

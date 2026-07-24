@@ -39,7 +39,7 @@ class MockDeadlineMonitor
         return *deadlines_.back().second;
     }
 
-    /// Used by mock_deadline_ffi.cpp to route `deadline_monitor_get_deadline`.
+    /// Used by mock_deadline_monitor_ffi.cpp to route `deadline_monitor_get_deadline`.
     MockDeadline* find_deadline(const DeadlineTag& deadline_tag)
     {
         for (auto& [tag, mock] : deadlines_)

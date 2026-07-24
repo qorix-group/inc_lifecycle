@@ -10,52 +10,24 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
-#include "mock_heartbeat_monitor.h"
 #include "mock_logic_monitor.h"
-#include <cstdint>
+#include <cstddef>
 
 using score::mw::health::StateTag;
-using score::mw::health::heartbeat::testing_support::MockHeartbeatMonitor;
 using score::mw::health::internal::FFICode;
 using score::mw::health::internal::FFIHandle;
 using score::mw::health::internal::kSuccess;
 using score::mw::health::internal::non_null_handle_sentinel;
 using score::mw::health::logic::testing_support::MockLogicMonitor;
 
-// Mock C FFI surface consumed by heartbeat_monitor.cpp/logic_monitor.cpp, replacing the real
-// Rust implementation. The builder-level create functions must return a non-null handle -- see
-// mock_deadline_ffi.cpp's deadline_monitor_builder_create for why -- but the value is otherwise
-// unused: HealthMonitorBuilder::add_heartbeat_monitor/add_logic_monitor() discard it once the
-// tag is registered on the owning MockHealthMonitor (see mock_health_monitor_ffi.cpp). The leaf
-// functions route to the mock via its own address, which is the FFIHandle handed out at
-// `health_monitor_get_heartbeat_monitor`/`health_monitor_get_logic_monitor` or by the standalone
-// `MockHeartbeatMonitor::as_heartbeat_monitor()`/`MockLogicMonitor::as_logic_monitor()`.
+// Mock C FFI surface consumed by logic_monitor.cpp, replacing the real Rust implementation.
+// The builder-level create function must return a non-null handle -- see
+// mock_deadline_monitor_ffi.cpp's deadline_monitor_builder_create for why -- but the value is
+// otherwise unused: HealthMonitorBuilder::add_logic_monitor() discards it once the tag is
+// registered on the owning MockHealthMonitor (see mock_health_monitor_ffi.cpp). The leaf functions
+// route to the mock via its own address, which is the FFIHandle handed out at
+// `health_monitor_get_logic_monitor` or by the standalone `MockLogicMonitor::as_logic_monitor()`.
 extern "C" {
-
-FFICode heartbeat_monitor_builder_create(
-    [[maybe_unused]] uint32_t range_min_ms,
-    [[maybe_unused]] uint32_t range_max_ms,
-    FFIHandle* heartbeat_monitor_builder_handle_out)
-{
-    *heartbeat_monitor_builder_handle_out = non_null_handle_sentinel();
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode heartbeat_monitor_builder_destroy([[maybe_unused]] FFIHandle heartbeat_monitor_builder_handle)
-{
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode heartbeat_monitor_destroy([[maybe_unused]] FFIHandle heartbeat_monitor_handle)
-{
-    return static_cast<FFICode>(kSuccess);
-}
-
-FFICode heartbeat_monitor_heartbeat(FFIHandle heartbeat_monitor_handle)
-{
-    reinterpret_cast<MockHeartbeatMonitor*>(heartbeat_monitor_handle)->heartbeat();
-    return static_cast<FFICode>(kSuccess);
-}
 
 FFICode logic_monitor_builder_create(
     [[maybe_unused]] const StateTag* initial_state,
