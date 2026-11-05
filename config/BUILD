@@ -121,3 +121,33 @@ config_setting(
     },
     visibility = ["//visibility:public"],
 )
+
+# Which process launcher report_running() reports Running to:
+#
+# - launch_manager: the S-CORE Launch Manager, through the descriptor it passes to the process it starts
+# - plms: QNX PLMS, by attaching the name in LIFECYCLE_READY_NAME (QNX only)
+string_flag(
+    name = "lifecycle_backend",
+    build_setting_default = "launch_manager",
+    values = [
+        "launch_manager",
+        "plms",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "lifecycle_backend_launch_manager",
+    flag_values = {
+        ":lifecycle_backend": "launch_manager",
+    },
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "lifecycle_backend_plms",
+    flag_values = {
+        ":lifecycle_backend": "plms",
+    },
+    visibility = ["//visibility:public"],
+)
